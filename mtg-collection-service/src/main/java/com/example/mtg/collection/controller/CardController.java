@@ -40,7 +40,7 @@ public class CardController {
     public ResponseEntity<UserCard> createUserCard(@RequestBody UserCardRequest request) {
         return cardRepository.findById(request.getCardId())
                 .map(card -> {
-                    UserCard userCard = new UserCard(card, request.getCondition(), request.getLanguage(), request.getIsFoil(), request.getQuantity());
+                    UserCard userCard = new UserCard(card, request.getCondition(), request.getLanguage(), request.getIsFoil(), request.getQuantity(), request.getPurchasePrice());
                     return ResponseEntity.ok(userCardRepository.save(userCard));
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -53,6 +53,7 @@ class UserCardRequest {
     private String language;
     private Boolean isFoil;
     private Integer quantity;
+    private java.math.BigDecimal purchasePrice;
 
     public Long getCardId() {
         return cardId;
@@ -92,5 +93,13 @@ class UserCardRequest {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public java.math.BigDecimal getPurchasePrice() {
+        return purchasePrice;
+    }
+
+    public void setPurchasePrice(java.math.BigDecimal purchasePrice) {
+        this.purchasePrice = purchasePrice;
     }
 }
