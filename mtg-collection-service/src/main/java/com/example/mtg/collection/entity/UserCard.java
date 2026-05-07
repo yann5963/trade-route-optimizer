@@ -25,14 +25,18 @@ public class UserCard {
 
     private Integer quantity = 1;
 
+    @Column(name = "purchase_price")
+    private java.math.BigDecimal purchasePrice;
+
     public UserCard() {}
 
-    public UserCard(Card card, String condition, String language, Boolean isFoil, Integer quantity) {
+    public UserCard(Card card, String condition, String language, Boolean isFoil, Integer quantity, java.math.BigDecimal purchasePrice) {
         this.card = card;
         this.condition = condition;
         this.language = language;
         this.isFoil = isFoil;
         this.quantity = quantity;
+        this.purchasePrice = purchasePrice;
     }
 
     public Long getId() {
@@ -81,5 +85,13 @@ public class UserCard {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public java.math.BigDecimal getPurchasePrice() {
+        return purchasePrice;
+    }
+
+    public void setPurchasePrice(java.math.BigDecimal purchasePrice) {
+        this.purchasePrice = purchasePrice;
     }
 }

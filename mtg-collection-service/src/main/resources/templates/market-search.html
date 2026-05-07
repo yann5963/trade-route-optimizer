@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::div.content})}">
+<head>
+    <title>Market Tracking & Optimisation</title>
+</head>
+<body>
+    <div class="content w-full max-w-6xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-white mb-2">Market Tracking & Optimisation</h1>
+            <p class="text-gray-400 text-sm">Générez des paniers d'achats optimisés pour réduire vos frais de port.</p>
+        </div>
+
+        <!-- Simulation Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Left Column: Wishlist / Query -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 shadow-sm">
+                    <h2 class="text-lg font-medium text-white mb-4 flex items-center">
+                        <i data-lucide="list-todo" class="w-5 h-5 mr-2 text-indigo-400"></i>
+                        Liste de Recherche
+                    </h2>
+
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex justify-between items-center text-sm p-3 bg-slate-900 rounded-md border border-slate-700">
+                            <div>
+                                <span class="text-gray-300 font-medium">Sol Ring</span>
+                                <span class="text-xs text-gray-500 block">Strixhaven, NM, EN</span>
+                            </div>
+                            <span class="text-indigo-400 font-bold">x4</span>
+                        </li>
+                        <li class="flex justify-between items-center text-sm p-3 bg-slate-900 rounded-md border border-slate-700">
+                            <div>
+                                <span class="text-gray-300 font-medium">Arcane Signet</span>
+                                <span class="text-xs text-gray-500 block">Commander 2021, EX+, FR/EN</span>
+                            </div>
+                            <span class="text-indigo-400 font-bold">x2</span>
+                        </li>
+                    </ul>
+
+                    <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium text-sm transition-colors flex items-center justify-center">
+                        <i data-lucide="calculator" class="w-4 h-4 mr-2"></i>
+                        Lancer l'Optimisation
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="lg:col-span-2">
+                <div class="bg-slate-800 rounded-lg border border-slate-700 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-900/50">
+                        <h2 class="text-lg font-medium text-white flex items-center">
+                            <i data-lucide="package-check" class="w-5 h-5 mr-2 text-green-400"></i>
+                            Meilleure Combinaison Trouvée
+                        </h2>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/50 text-green-400 border border-green-800">
+                            Économie estimée: 4.50 €
+                        </span>
+                    </div>
+
+                    <div class="p-6 space-y-6">
+                        <!-- Seller Basket 1 -->
+                        <div class="border border-slate-600 rounded-lg p-4 bg-slate-800/50 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-md font-bold text-white flex items-center">
+                                        MagicStore_FR
+                                        <i data-lucide="shield-check" class="w-4 h-4 text-blue-400 ml-2" title="Powerseller"></i>
+                                    </h3>
+                                    <p class="text-xs text-gray-400 mt-1">Frais de port : 1.50 € (Lettre standard)</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-white">8.60 €</div>
+                                    <div class="text-xs text-gray-500">Total panier</div>
+                                </div>
+                            </div>
+
+                            <table class="min-w-full divide-y divide-slate-700">
+                                <tbody class="divide-y divide-slate-700 text-sm">
+                                    <tr>
+                                        <td class="py-2 text-gray-300">4x Sol Ring</td>
+                                        <td class="py-2 text-gray-400 text-xs">Strixhaven, NM</td>
+                                        <td class="py-2 text-right text-white font-medium">1.90 € /u</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 text-gray-300">2x Arcane Signet</td>
+                                        <td class="py-2 text-gray-400 text-xs">C21, EX</td>
+                                        <td class="py-2 text-right text-white font-medium">0.50 € /u</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="flex justify-end pt-4 border-t border-slate-700">
+                            <div class="text-right mr-6">
+                                <div class="text-sm text-gray-400">Total Cartes</div>
+                                <div class="text-sm text-gray-400">Total Frais de port</div>
+                                <div class="text-lg font-bold text-white mt-1">Coût Final</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-300">8.60 €</div>
+                                <div class="text-sm text-gray-300">1.50 €</div>
+                                <div class="text-lg font-bold text-indigo-400 mt-1">10.10 €</div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3 mt-6">
+                            <button class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-md font-medium text-sm transition-colors border border-slate-600">
+                                Exporter pour Cardmarket
+                            </button>
+                            <button hx-post="/ui/market/simulate" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium text-sm transition-colors flex items-center shadow-lg shadow-indigo-900/20">
+                                <i data-lucide="database" class="w-4 h-4 mr-2"></i>
+                                Simuler l'achat (Ajout BD)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -11,5 +11,6 @@ CREATE TABLE user_card (
     condition VARCHAR(50) NOT NULL,
     language VARCHAR(50) NOT NULL,
     is_foil BOOLEAN DEFAULT FALSE,
-    quantity INTEGER DEFAULT 1
+    quantity INTEGER DEFAULT 1,
+    purchase_price DECIMAL(10, 2)
 );
