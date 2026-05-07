@@ -78,6 +78,12 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Live Deals Section via HTMX Polling -->
+        <div hx-get="/ui/deals/fragment" hx-trigger="load">
+            <!-- Content will be swapped here -->
+        </div>
+
     </div>
 </body>
 </html>

@@ -18,6 +18,9 @@ public class Card {
 
     private String rarity;
 
+    @Column(name = "last_deal_scan")
+    private java.time.LocalDateTime lastDealScan;
+
     public Card() {}
 
     public Card(String name, String setName, String rarity) {
@@ -56,5 +59,13 @@ public class Card {
 
     public void setRarity(String rarity) {
         this.rarity = rarity;
+    }
+
+    public java.time.LocalDateTime getLastDealScan() {
+        return lastDealScan;
+    }
+
+    public void setLastDealScan(java.time.LocalDateTime lastDealScan) {
+        this.lastDealScan = lastDealScan;
     }
 }

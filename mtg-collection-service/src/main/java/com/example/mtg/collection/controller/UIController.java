@@ -7,8 +7,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Controller
@@ -16,9 +21,11 @@ import java.util.stream.Collectors;
 public class UIController {
 
     private final UserCardRepository userCardRepository;
+    private final RestTemplate restTemplate;
 
     public UIController(UserCardRepository userCardRepository) {
         this.userCardRepository = userCardRepository;
+        this.restTemplate = new RestTemplate();
     }
 
     @GetMapping("/collection")
@@ -46,6 +53,40 @@ public class UIController {
     @GetMapping("/market")
     public String getMarketDashboard(Model model) {
         return "market-search";
+    }
+
+    @GetMapping("/deals/fragment")
+    public String getDealsFragment(Model model) {
+        try {
+            // Call market-service to get active deals
+            ResponseEntity<List<Object>> response = restTemplate.exchange(
+                    "http://localhost:8082/api/deals",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Object>>() {}
+            );
+            model.addAttribute("deals", response.getBody());
+        } catch (Exception e) {
+            model.addAttribute("deals", new ArrayList<>());
+        }
+        return "deals-section :: deals-grid";
+    }
+
+    @GetMapping("/deals/count")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public String getDealsCount() {
+        try {
+            Long count = restTemplate.getForObject("http://localhost:8082/api/deals/count", Long.class);
+            if (count != null && count > 0) {
+                return "<span class=\"absolute top-3 right-3 flex h-3 w-3\">\n" +
+                       "  <span class=\"animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75\"></span>\n" +
+                       "  <span class=\"relative inline-flex rounded-full h-3 w-3 bg-red-500\"></span>\n" +
+                       "</span>";
+            }
+        } catch (Exception e) {
+            // Ignore if market-service is down
+        }
+        return "";
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/ai/chat")

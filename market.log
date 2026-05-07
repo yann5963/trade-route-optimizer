@@ -1,0 +1,140 @@
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.0)
+
+2026-05-07T15:36:59.890Z  INFO 329378 --- [           main] c.e.m.m.MtgMarketServiceApplication      : Starting MtgMarketServiceApplication v1.0.0-SNAPSHOT using Java 21.0.10 with PID 329378 (/app/mtg-market-service/target/mtg-market-service-1.0.0-SNAPSHOT.jar started by jules in /app)
+2026-05-07T15:36:59.895Z  INFO 329378 --- [           main] c.e.m.m.MtgMarketServiceApplication      : No active profile set, falling back to 1 default profile: "default"
+2026-05-07T15:37:01.624Z  INFO 329378 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-07T15:37:01.788Z  INFO 329378 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 152 ms. Found 1 JPA repository interface.
+2026-05-07T15:37:02.992Z  INFO 329378 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8082 (http)
+2026-05-07T15:37:03.028Z  INFO 329378 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-07T15:37:03.028Z  INFO 329378 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-05-07T15:37:03.101Z  INFO 329378 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-07T15:37:03.103Z  INFO 329378 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3077 ms
+2026-05-07T15:37:03.704Z  INFO 329378 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-07T15:37:03.899Z  INFO 329378 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2026-05-07T15:37:03.984Z  INFO 329378 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-07T15:37:04.697Z  INFO 329378 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-07T15:37:04.754Z  INFO 329378 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-07T15:37:05.636Z  INFO 329378 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@467af68c
+2026-05-07T15:37:05.638Z  INFO 329378 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-07T15:37:07.567Z  INFO 329378 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-07T15:37:07.622Z  INFO 329378 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-07T15:37:08.327Z  WARN 329378 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-07T15:37:09.201Z  INFO 329378 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8082 (http) with context path '/'
+2026-05-07T15:37:09.243Z  INFO 329378 --- [           main] c.e.m.m.MtgMarketServiceApplication      : Started MtgMarketServiceApplication in 10.351 seconds (process running for 11.302)
+Scanning for new deals...
+2026-05-07T15:37:17.045Z  INFO 329378 --- [nio-8082-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-07T15:37:17.046Z  INFO 329378 --- [nio-8082-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-07T15:37:17.048Z  INFO 329378 --- [nio-8082-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+Hibernate:
+    select
+        cd1_0.id,
+        cd1_0.card_id,
+        cd1_0.condition,
+        cd1_0.detected_at,
+        cd1_0.is_foil,
+        cd1_0.language,
+        cd1_0.price,
+        cd1_0.savings_percentage,
+        cd1_0.seller_country,
+        cd1_0.seller_name,
+        cd1_0.status,
+        cd1_0.trend_price
+    from
+        current_deals cd1_0
+    where
+        cd1_0.status=?
+    order by
+        cd1_0.savings_percentage desc
+Hibernate:
+    select
+        cd1_0.id,
+        cd1_0.card_id,
+        cd1_0.condition,
+        cd1_0.detected_at,
+        cd1_0.is_foil,
+        cd1_0.language,
+        cd1_0.price,
+        cd1_0.savings_percentage,
+        cd1_0.seller_country,
+        cd1_0.seller_name,
+        cd1_0.status,
+        cd1_0.trend_price
+    from
+        current_deals cd1_0
+    where
+        cd1_0.status=?
+    order by
+        cd1_0.savings_percentage desc
+Hibernate:
+    select
+        cd1_0.id,
+        cd1_0.card_id,
+        cd1_0.condition,
+        cd1_0.detected_at,
+        cd1_0.is_foil,
+        cd1_0.language,
+        cd1_0.price,
+        cd1_0.savings_percentage,
+        cd1_0.seller_country,
+        cd1_0.seller_name,
+        cd1_0.status,
+        cd1_0.trend_price
+    from
+        current_deals cd1_0
+    where
+        cd1_0.status=?
+    order by
+        cd1_0.savings_percentage desc
+Hibernate:
+    select
+        cd1_0.id,
+        cd1_0.card_id,
+        cd1_0.condition,
+        cd1_0.detected_at,
+        cd1_0.is_foil,
+        cd1_0.language,
+        cd1_0.price,
+        cd1_0.savings_percentage,
+        cd1_0.seller_country,
+        cd1_0.seller_name,
+        cd1_0.status,
+        cd1_0.trend_price
+    from
+        current_deals cd1_0
+    where
+        cd1_0.status=?
+    order by
+        cd1_0.savings_percentage desc
+Hibernate:
+    select
+        cd1_0.id,
+        cd1_0.card_id,
+        cd1_0.condition,
+        cd1_0.detected_at,
+        cd1_0.is_foil,
+        cd1_0.language,
+        cd1_0.price,
+        cd1_0.savings_percentage,
+        cd1_0.seller_country,
+        cd1_0.seller_name,
+        cd1_0.status,
+        cd1_0.trend_price
+    from
+        current_deals cd1_0
+    where
+        cd1_0.status=?
+    order by
+        cd1_0.savings_percentage desc
+Scanning for new deals...
+No cards found in DB, skipping deal generation.
+Scanning for new deals...
+No cards found in DB, skipping deal generation.
+Scanning for new deals...
+Scanning for new deals...
