@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: mtg-gateway
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+      routes:
+        - id: collection-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/collection/**, /ui/**
+        - id: market-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/market/**, /api/deals/**
+        - id: ai-orchestrator
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/ai/**
