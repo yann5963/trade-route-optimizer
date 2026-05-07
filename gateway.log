@@ -1,0 +1,28 @@
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.0)
+
+2026-05-07T19:54:17.210Z  INFO 427617 --- [mtg-gateway] [           main] c.e.mtg.gateway.MtgGatewayApplication    : Starting MtgGatewayApplication v1.0.0-SNAPSHOT using Java 21.0.10 with PID 427617 (/app/mtg-gateway/target/mtg-gateway-1.0.0-SNAPSHOT.jar started by jules in /app)
+2026-05-07T19:54:17.230Z  INFO 427617 --- [mtg-gateway] [           main] c.e.mtg.gateway.MtgGatewayApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-05-07T19:54:20.775Z  INFO 427617 --- [mtg-gateway] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=aae34428-962e-329e-8b4a-c4ba94e6d424
+2026-05-07T19:54:23.384Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2026-05-07T19:54:23.384Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Cookie]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Header]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Host]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Method]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Path]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Query]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [ReadBody]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [RemoteAddr]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [XForwardedRemoteAddr]
+2026-05-07T19:54:23.385Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Weight]
+2026-05-07T19:54:23.386Z  INFO 427617 --- [mtg-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [CloudFoundryRouteService]
+2026-05-07T19:54:24.591Z  INFO 427617 --- [mtg-gateway] [           main] o.s.b.web.embedded.netty.NettyWebServer  : Netty started on port 8080 (http)
+2026-05-07T19:54:24.750Z  INFO 427617 --- [mtg-gateway] [           main] c.e.mtg.gateway.MtgGatewayApplication    : Started MtgGatewayApplication in 9.266 seconds (process running for 10.765)
