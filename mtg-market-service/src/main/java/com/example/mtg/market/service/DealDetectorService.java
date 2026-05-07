@@ -10,6 +10,12 @@ import java.util.Random;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 
+/**
+ * Service responsible for periodically scanning and detecting new market deals.
+ * <p>
+ * This service currently uses a mock implementation to simulate the discovery
+ * of deals based on card prices and trends.
+ */
 @Service
 public class DealDetectorService {
 
@@ -22,7 +28,13 @@ public class DealDetectorService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // Run every 5 minutes
+    /**
+     * Scheduled task that runs periodically to find new deals.
+     * <p>
+     * It randomly selects a known card ID and generates a mocked deal
+     * if the randomized price meets the criteria (e.g., &gt; 15% savings).
+     * The deal is then saved to the database.
+     */
     @Scheduled(fixedRate = 300000)
     public void scanForDeals() {
         System.out.println("Scanning for new deals...");

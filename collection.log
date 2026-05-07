@@ -7,34 +7,34 @@
 
  :: Spring Boot ::                (v3.3.0)
 
-2026-05-07T15:37:00.047Z  INFO 329380 --- [           main] c.e.m.c.MtgCollectionServiceApplication  : Starting MtgCollectionServiceApplication v1.0.0-SNAPSHOT using Java 21.0.10 with PID 329380 (/app/mtg-collection-service/target/mtg-collection-service-1.0.0-SNAPSHOT.jar started by jules in /app)
-2026-05-07T15:37:00.060Z  INFO 329380 --- [           main] c.e.m.c.MtgCollectionServiceApplication  : No active profile set, falling back to 1 default profile: "default"
-2026-05-07T15:37:01.855Z  INFO 329380 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-05-07T15:37:02.047Z  INFO 329380 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 167 ms. Found 2 JPA repository interfaces.
-2026-05-07T15:37:03.265Z  INFO 329380 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
-2026-05-07T15:37:03.292Z  INFO 329380 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-05-07T15:37:03.292Z  INFO 329380 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
-2026-05-07T15:37:03.345Z  INFO 329380 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-05-07T15:37:03.347Z  INFO 329380 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3166 ms
-2026-05-07T15:37:04.008Z  INFO 329380 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-05-07T15:37:04.837Z  INFO 329380 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1bd8afc8
-2026-05-07T15:37:04.845Z  INFO 329380 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-05-07T15:37:04.900Z  INFO 329380 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/mtg_db (PostgreSQL 16.13)
-2026-05-07T15:37:05.018Z  INFO 329380 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 2 migrations (execution time 00:00.085s)
-2026-05-07T15:37:05.065Z  INFO 329380 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 2
-2026-05-07T15:37:05.069Z  INFO 329380 --- [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
-2026-05-07T15:37:05.297Z  INFO 329380 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-05-07T15:37:05.501Z  INFO 329380 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2026-05-07T15:37:05.587Z  INFO 329380 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-05-07T15:37:06.504Z  INFO 329380 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-05-07T15:37:08.160Z  INFO 329380 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-05-07T15:37:08.228Z  INFO 329380 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-05-07T15:37:09.080Z  WARN 329380 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-05-07T15:37:09.786Z  INFO 329380 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
-2026-05-07T15:37:09.798Z  INFO 329380 --- [           main] c.e.m.c.MtgCollectionServiceApplication  : Started MtgCollectionServiceApplication in 10.83 seconds (process running for 11.852)
-2026-05-07T15:37:15.636Z  INFO 329380 --- [nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-05-07T15:37:15.636Z  INFO 329380 --- [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-05-07T15:37:15.638Z  INFO 329380 --- [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-05-07T17:09:23.306Z  INFO 364366 --- [           main] c.e.m.c.MtgCollectionServiceApplication  : Starting MtgCollectionServiceApplication v1.0.0-SNAPSHOT using Java 21.0.10 with PID 364366 (/app/mtg-collection-service/target/mtg-collection-service-1.0.0-SNAPSHOT.jar started by jules in /app)
+2026-05-07T17:09:23.316Z  INFO 364366 --- [           main] c.e.m.c.MtgCollectionServiceApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-05-07T17:09:24.989Z  INFO 364366 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-07T17:09:25.192Z  INFO 364366 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 177 ms. Found 2 JPA repository interfaces.
+2026-05-07T17:09:26.659Z  INFO 364366 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-05-07T17:09:26.683Z  INFO 364366 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-07T17:09:26.684Z  INFO 364366 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-05-07T17:09:26.751Z  INFO 364366 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-07T17:09:26.753Z  INFO 364366 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3279 ms
+2026-05-07T17:09:27.485Z  INFO 364366 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-07T17:09:28.175Z  INFO 364366 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@492521c4
+2026-05-07T17:09:28.177Z  INFO 364366 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-07T17:09:28.255Z  INFO 364366 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/mtg_db (PostgreSQL 16.13)
+2026-05-07T17:09:28.394Z  INFO 364366 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 2 migrations (execution time 00:00.101s)
+2026-05-07T17:09:28.421Z  INFO 364366 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 2
+2026-05-07T17:09:28.429Z  INFO 364366 --- [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-05-07T17:09:28.708Z  INFO 364366 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-07T17:09:28.877Z  INFO 364366 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2026-05-07T17:09:28.988Z  INFO 364366 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-07T17:09:29.727Z  INFO 364366 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-07T17:09:31.384Z  INFO 364366 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-07T17:09:31.448Z  INFO 364366 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-07T17:09:32.356Z  WARN 364366 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-07T17:09:32.868Z  INFO 364366 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-05-07T17:09:32.880Z  INFO 364366 --- [           main] c.e.m.c.MtgCollectionServiceApplication  : Started MtgCollectionServiceApplication in 10.589 seconds (process running for 11.585)
+2026-05-07T17:09:37.551Z  INFO 364366 --- [nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-07T17:09:37.552Z  INFO 364366 --- [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-07T17:09:37.554Z  INFO 364366 --- [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
 Hibernate:
     select
         uc1_0.id,
@@ -57,3 +57,6 @@ Hibernate:
         uc1_0.quantity
     from
         user_card uc1_0
+2026-05-07T17:09:21.288Z  INFO 357819 --- [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-07T17:09:21.292Z  INFO 357819 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-07T17:09:21.342Z  INFO 357819 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
