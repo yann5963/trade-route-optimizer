@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::div.content})}">
+<head>
+    <title>Opportunités du Marché</title>
+</head>
+<body>
+    <div class="content w-full max-w-6xl mx-auto">
+        <style>
+            .fade-out.htmx-swapping {
+                opacity: 0;
+                transition: opacity 0.5s ease-out;
+            }
+        </style>
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-white mb-2">Opportunités du Marché</h1>
+            <p class="text-gray-400 text-sm">Cartes de votre Wishlist détectées en dessous de leur prix de tendance.</p>
+        </div>
+
+        <!-- Deals Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="deals-grid">
+
+            <div th:each="deal : ${deals}" class="fade-out bg-slate-800 rounded-xl border border-slate-700 shadow-sm overflow-hidden hover:border-indigo-500/50 transition-colors relative group">
+
+                <!-- Savings Badge -->
+                <div class="absolute top-3 right-3 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold px-2 py-1 rounded">
+                    -<span th:text="${#numbers.formatDecimal(deal.savingsPercentage, 1, 0)}">15</span>%
+                </div>
+
+                <div class="p-5 flex items-start">
+                    <!-- Card Image Placeholder -->
+                    <div class="flex-shrink-0 h-16 w-12 bg-slate-700 rounded shadow-inner flex items-center justify-center overflow-hidden border border-slate-600 mr-4">
+                        <i data-lucide="image" class="w-4 h-4 text-gray-500"></i>
+                    </div>
+
+                    <div class="flex-1">
+                        <h3 class="text-md font-bold text-white truncate" th:text="${deal.cardName}">Card Name</h3>
+                        <p class="text-xs text-gray-400 mt-1 flex items-center">
+                            <i data-lucide="user" class="w-3 h-3 mr-1"></i>
+                            <span th:text="${deal.sellerName}">Seller</span>
+                            <span class="ml-1 text-slate-500" th:text="'(' + ${deal.sellerCountry} + ')'">(FR)</span>
+                        </p>
+
+                        <!-- Attributes -->
+                        <div class="flex gap-2 mt-2">
+                            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-700 text-gray-300" th:text="${deal.condition}">NM</span>
+                            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-700 text-gray-300" th:text="${deal.language}">FR</span>
+                            <span th:if="${deal.isFoil}" class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-yellow-900/30 text-yellow-500 border border-yellow-700/50">Foil</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/50 px-5 py-3 border-t border-slate-700 flex justify-between items-center">
+                    <div>
+                        <div class="text-xs text-gray-500 line-through" th:text="${deal.trendPrice} + ' €'">10.00 €</div>
+                        <div class="text-lg font-bold text-white leading-none mt-0.5" th:text="${deal.price} + ' €'">8.50 €</div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button th:attr="hx-post='/ui/deals/' + ${deal.id} + '/ignore'" hx-swap="outerHTML swap:0.5s" hx-target="closest .fade-out" class="p-1.5 rounded-md bg-slate-700 text-gray-400 hover:text-white hover:bg-slate-600 transition-colors" title="Ignorer cette offre">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                        <button th:attr="hx-post='/ui/deals/' + ${deal.id} + '/add'" hx-swap="outerHTML swap:0.5s" hx-target="closest .fade-out" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md font-medium text-xs transition-colors flex items-center shadow-lg shadow-indigo-900/20">
+                            Ajouter au Panier
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${deals == null or deals.isEmpty()}" class="col-span-full py-12 text-center text-gray-500">
+                <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-3 opacity-50"></i>
+                <p>Aucune bonne affaire détectée pour le moment.</p>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

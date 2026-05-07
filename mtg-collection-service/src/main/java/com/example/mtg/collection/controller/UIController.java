@@ -55,6 +55,45 @@ public class UIController {
         return "market-search";
     }
 
+    @GetMapping("/deals")
+    public String getDealsDashboard(Model model) {
+        try {
+            // Call market-service to get active deals
+            ResponseEntity<List<Object>> response = restTemplate.exchange(
+                    "http://localhost:8082/api/deals",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Object>>() {}
+            );
+            model.addAttribute("deals", response.getBody());
+        } catch (Exception e) {
+            model.addAttribute("deals", new ArrayList<>());
+        }
+        return "deals";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/deals/{id}/ignore")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public String ignoreDeal(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        try {
+            restTemplate.put("http://localhost:8082/api/deals/" + id + "/status?status=IGNORED", null);
+        } catch (Exception e) {
+            // Ignore if market-service is down
+        }
+        return "";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/deals/{id}/add")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public String addDeal(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        try {
+            restTemplate.put("http://localhost:8082/api/deals/" + id + "/status?status=CART", null);
+        } catch (Exception e) {
+            // Ignore if market-service is down
+        }
+        return "";
+    }
+
     @GetMapping("/deals/fragment")
     public String getDealsFragment(Model model) {
         try {
