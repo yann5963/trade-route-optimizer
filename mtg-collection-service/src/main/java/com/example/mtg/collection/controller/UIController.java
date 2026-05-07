@@ -16,6 +16,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+/**
+ * Controller responsible for handling UI-related requests and rendering Thymeleaf templates.
+ * It also acts as an intermediary for HTMX requests, sometimes fetching data from other microservices.
+ */
 @Controller
 @RequestMapping("/ui")
 public class UIController {
@@ -28,6 +32,12 @@ public class UIController {
         this.restTemplate = new RestTemplate();
     }
 
+    /**
+     * Renders the main collection dashboard view.
+     *
+     * @param model the Spring MVC model to which user cards are added
+     * @return the name of the Thymeleaf template to render
+     */
     @GetMapping("/collection")
     public String getCollectionDashboard(Model model) {
         List<UserCard> userCards = userCardRepository.findAll();
@@ -35,6 +45,14 @@ public class UIController {
         return "collection";
     }
 
+    /**
+     * Filters the user's collection based on a search string and returns an HTML fragment.
+     * This endpoint is designed to be called via HTMX.
+     *
+     * @param filter the search string used to filter card names or set names
+     * @param model  the Spring MVC model to which filtered cards are added
+     * @return the Thymeleaf fragment name to render the updated table rows
+     */
     @GetMapping("/collection/filter")
     public String filterCollection(@RequestParam(name = "filter", required = false, defaultValue = "") String filter, Model model) {
         List<UserCard> allCards = userCardRepository.findAll();
@@ -50,11 +68,23 @@ public class UIController {
         return "collection :: cardRows";
     }
 
+    /**
+     * Renders the market tracking dashboard view.
+     *
+     * @param model the Spring MVC model
+     * @return the name of the Thymeleaf template to render
+     */
     @GetMapping("/market")
     public String getMarketDashboard(Model model) {
         return "market-search";
     }
 
+    /**
+     * Renders the deals dashboard view, fetching active deals from the market service.
+     *
+     * @param model the Spring MVC model to which active deals are added
+     * @return the name of the Thymeleaf template to render
+     */
     @GetMapping("/deals")
     public String getDealsDashboard(Model model) {
         try {
@@ -72,6 +102,13 @@ public class UIController {
         return "deals";
     }
 
+    /**
+     * Handles the action to ignore a specific deal.
+     * This endpoint is called via HTMX and communicates with the market service.
+     *
+     * @param id the ID of the deal to ignore
+     * @return an empty string to remove the element from the DOM via HTMX swap
+     */
     @org.springframework.web.bind.annotation.PostMapping("/deals/{id}/ignore")
     @org.springframework.web.bind.annotation.ResponseBody
     public String ignoreDeal(@org.springframework.web.bind.annotation.PathVariable Long id) {
@@ -83,6 +120,13 @@ public class UIController {
         return "";
     }
 
+    /**
+     * Handles the action to add a specific deal to the cart.
+     * This endpoint is called via HTMX and communicates with the market service.
+     *
+     * @param id the ID of the deal to add
+     * @return an empty string to remove the element from the DOM via HTMX swap
+     */
     @org.springframework.web.bind.annotation.PostMapping("/deals/{id}/add")
     @org.springframework.web.bind.annotation.ResponseBody
     public String addDeal(@org.springframework.web.bind.annotation.PathVariable Long id) {
@@ -94,6 +138,13 @@ public class UIController {
         return "";
     }
 
+    /**
+     * Fetches active deals from the market service and returns an HTML fragment.
+     * This endpoint is designed to be called via HTMX for periodic polling.
+     *
+     * @param model the Spring MVC model to which active deals are added
+     * @return the Thymeleaf fragment name to render the updated deals grid
+     */
     @GetMapping("/deals/fragment")
     public String getDealsFragment(Model model) {
         try {
@@ -111,6 +162,12 @@ public class UIController {
         return "deals-section :: deals-grid";
     }
 
+    /**
+     * Fetches the count of active deals from the market service and returns an HTML fragment for a notification badge.
+     * This endpoint is designed to be called via HTMX for periodic polling.
+     *
+     * @return an HTML string representing the notification badge if count > 0, otherwise an empty string
+     */
     @GetMapping("/deals/count")
     @org.springframework.web.bind.annotation.ResponseBody
     public String getDealsCount() {
@@ -128,6 +185,13 @@ public class UIController {
         return "";
     }
 
+    /**
+     * Handles natural language queries submitted to the AI assistant.
+     * This is currently a mock implementation that simulates a delay and returns a static HTML response.
+     *
+     * @param query the natural language query from the user
+     * @return an HTML string representing the AI's response
+     */
     @org.springframework.web.bind.annotation.PostMapping("/ai/chat")
     @org.springframework.web.bind.annotation.ResponseBody
     public String handleAiChat(@RequestParam("query") String query) {
