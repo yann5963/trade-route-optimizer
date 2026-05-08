@@ -1,11 +1,15 @@
 package com.example.mtg.market.service;
 
 import com.example.mtg.market.dto.CardmarketArticle;
+import com.example.mtg.market.dto.ArticleToBuy;
+import com.example.mtg.market.dto.CartRequest;
 import com.example.mtg.market.dto.CardmarketArticleResponse;
 import com.example.mtg.market.dto.CardmarketProduct;
 import com.example.mtg.market.dto.CardmarketProductResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -64,5 +68,27 @@ public class CardmarketApiService {
             System.err.println("Error fetching articles for product " + productId + ": " + e.getMessage());
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Adds the specified articles to the shopping cart.
+     *
+     * @param articles The list of articles to add.
+     * @return true if successful, false otherwise.
+     */
+    public boolean addArticlesToCart(List<ArticleToBuy> articles) {
+        try {
+            CartRequest request = new CartRequest(articles);
+            ResponseEntity<String> response = cardmarketRestClient.put()
+                    .uri("/ws/v2.0/shoppingcart")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(request)
+                    .retrieve()
+                    .toEntity(String.class);
+            return response.getStatusCode().is2xxSuccessful();
+        } catch (Exception e) {
+            System.err.println("Error adding articles to cart: " + e.getMessage());
+            return false;
+        }
     }
 }

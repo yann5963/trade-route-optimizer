@@ -6,6 +6,7 @@
     <title th:text="#{app.title}">MTG Collection Optimizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/json-enc.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
@@ -33,7 +34,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 text-gray-200 h-screen flex overflow-hidden">
+<body class="bg-slate-900 text-gray-200 h-screen flex overflow-hidden" hx-ext="json-enc">
 
     <!-- Sidebar -->
     <aside class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
@@ -104,6 +105,9 @@
         <main class="flex-1 overflow-y-auto p-8 bg-slate-900" th:insert="${content}">
             <!-- Page specific content will be injected here -->
         </main>
+
+        <!-- Notification Area -->
+        <div id="notification-area" class="fixed bottom-4 right-4 z-50"></div>
     </div>
 
     <script>
