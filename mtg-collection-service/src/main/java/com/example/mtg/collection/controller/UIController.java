@@ -1,58 +1,58 @@
 package com.example.mtg.collection.controller;
 
+import com.example.mtg.collection.entity.Card;
 import com.example.mtg.collection.entity.UserCard;
+import com.example.mtg.collection.entity.WishlistCard;
+import com.example.mtg.collection.repository.CardRepository;
 import com.example.mtg.collection.repository.UserCardRepository;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestTemplate;
+import com.example.mtg.collection.repository.WishlistCardRepository;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Controller responsible for handling UI-related requests and rendering Thymeleaf templates.
- * It also acts as an intermediary for HTMX requests, sometimes fetching data from other microservices.
  */
 @Controller
 @RequestMapping("/ui")
 public class UIController {
 
     private final UserCardRepository userCardRepository;
+    private final WishlistCardRepository wishlistCardRepository;
+    private final CardRepository cardRepository;
     private final RestTemplate restTemplate;
 
-    public UIController(UserCardRepository userCardRepository) {
+    public UIController(UserCardRepository userCardRepository, 
+                        WishlistCardRepository wishlistCardRepository,
+                        CardRepository cardRepository) {
         this.userCardRepository = userCardRepository;
+        this.wishlistCardRepository = wishlistCardRepository;
+        this.cardRepository = cardRepository;
         this.restTemplate = new RestTemplate();
     }
 
-    /**
-     * Renders the main collection dashboard view.
-     *
-     * @param model the Spring MVC model to which user cards are added
-     * @return the name of the Thymeleaf template to render
-     */
     @GetMapping("/collection")
     public String getCollectionDashboard(Model model) {
         List<UserCard> userCards = userCardRepository.findAll();
         model.addAttribute("userCards", userCards);
-        return "collection";
+        return "views/collection";
     }
 
-    /**
-     * Filters the user's collection based on a search string and returns an HTML fragment.
-     * This endpoint is designed to be called via HTMX.
-     *
-     * @param filter the search string used to filter card names or set names
-     * @param model  the Spring MVC model to which filtered cards are added
-     * @return the Thymeleaf fragment name to render the updated table rows
-     */
+    @GetMapping("/wishlist")
+    public String getWishlistDashboard(Model model) {
+        List<WishlistCard> wishlistCards = wishlistCardRepository.findAll();
+        model.addAttribute("wishlistCards", wishlistCards);
+        return "views/wishlist";
+    }
+
     @GetMapping("/collection/filter")
     public String filterCollection(@RequestParam(name = "filter", required = false, defaultValue = "") String filter, Model model) {
         List<UserCard> allCards = userCardRepository.findAll();
@@ -63,37 +63,22 @@ public class UIController {
                 .collect(Collectors.toList());
 
         model.addAttribute("userCards", filteredCards);
-
-        // Return just the fragment for HTMX updates
-        return "collection :: cardRows";
+        return "views/collection :: cardRows";
     }
 
-    /**
-     * Renders the market tracking dashboard view.
-     *
-     * @param model the Spring MVC model
-     * @return the name of the Thymeleaf template to render
-     */
     @GetMapping("/market")
     public String getMarketDashboard(Model model) {
-        return "market-search";
+        return "views/market-search";
     }
 
     @GetMapping("/settings")
     public String getSettingsPage(Model model) {
-        return "settings";
+        return "views/settings";
     }
 
-    /**
-     * Renders the deals dashboard view, fetching active deals from the market service.
-     *
-     * @param model the Spring MVC model to which active deals are added
-     * @return the name of the Thymeleaf template to render
-     */
     @GetMapping("/deals")
     public String getDealsDashboard(Model model) {
         try {
-            // Call market-service to get active deals
             ResponseEntity<List<Object>> response = restTemplate.exchange(
                     "http://localhost:8082/api/deals",
                     HttpMethod.GET,
@@ -104,56 +89,32 @@ public class UIController {
         } catch (Exception e) {
             model.addAttribute("deals", new ArrayList<>());
         }
-        return "deals";
+        return "views/deals";
     }
 
-    /**
-     * Handles the action to ignore a specific deal.
-     * This endpoint is called via HTMX and communicates with the market service.
-     *
-     * @param id the ID of the deal to ignore
-     * @return an empty string to remove the element from the DOM via HTMX swap
-     */
-    @org.springframework.web.bind.annotation.PostMapping("/deals/{id}/ignore")
-    @org.springframework.web.bind.annotation.ResponseBody
-    public String ignoreDeal(@org.springframework.web.bind.annotation.PathVariable Long id) {
+    @PostMapping("/deals/{id}/ignore")
+    @ResponseBody
+    public String ignoreDeal(@PathVariable Long id) {
         try {
             restTemplate.put("http://localhost:8082/api/deals/" + id + "/status?status=IGNORED", null);
         } catch (Exception e) {
-            // Ignore if market-service is down
         }
         return "";
     }
 
-    /**
-     * Handles the action to add a specific deal to the cart.
-     * This endpoint is called via HTMX and communicates with the market service.
-     *
-     * @param id the ID of the deal to add
-     * @return an empty string to remove the element from the DOM via HTMX swap
-     */
-    @org.springframework.web.bind.annotation.PostMapping("/deals/{id}/add")
-    @org.springframework.web.bind.annotation.ResponseBody
-    public String addDeal(@org.springframework.web.bind.annotation.PathVariable Long id) {
+    @PostMapping("/deals/{id}/add")
+    @ResponseBody
+    public String addDeal(@PathVariable Long id) {
         try {
             restTemplate.put("http://localhost:8082/api/deals/" + id + "/status?status=CART", null);
         } catch (Exception e) {
-            // Ignore if market-service is down
         }
         return "";
     }
 
-    /**
-     * Fetches active deals from the market service and returns an HTML fragment.
-     * This endpoint is designed to be called via HTMX for periodic polling.
-     *
-     * @param model the Spring MVC model to which active deals are added
-     * @return the Thymeleaf fragment name to render the updated deals grid
-     */
     @GetMapping("/deals/fragment")
     public String getDealsFragment(Model model) {
         try {
-            // Call market-service to get active deals
             ResponseEntity<List<Object>> response = restTemplate.exchange(
                     "http://localhost:8082/api/deals",
                     HttpMethod.GET,
@@ -164,17 +125,11 @@ public class UIController {
         } catch (Exception e) {
             model.addAttribute("deals", new ArrayList<>());
         }
-        return "deals-section :: deals-grid";
+        return "fragments/deals-section :: deals-grid";
     }
 
-    /**
-     * Fetches the count of active deals from the market service and returns an HTML fragment for a notification badge.
-     * This endpoint is designed to be called via HTMX for periodic polling.
-     *
-     * @return an HTML string representing the notification badge if count > 0, otherwise an empty string
-     */
     @GetMapping("/deals/count")
-    @org.springframework.web.bind.annotation.ResponseBody
+    @ResponseBody
     public String getDealsCount() {
         try {
             Long count = restTemplate.getForObject("http://localhost:8082/api/deals/count", Long.class);
@@ -185,22 +140,41 @@ public class UIController {
                        "</span>";
             }
         } catch (Exception e) {
-            // Ignore if market-service is down
         }
         return "";
     }
 
-    /**
-     * Handles natural language queries submitted to the AI assistant.
-     * This is currently a mock implementation that simulates a delay and returns a static HTML response.
-     *
-     * @param query the natural language query from the user
-     * @return an HTML string representing the AI's response
-     */
-    @org.springframework.web.bind.annotation.PostMapping("/ai/chat")
-    @org.springframework.web.bind.annotation.ResponseBody
+    @GetMapping("/collection/add")
+    public String getAddCardForm(Model model) {
+        return "fragments/add-card-modal :: add-card-form";
+    }
+
+    @PostMapping("/collection/add")
+    public String addCard(@RequestParam("name") String name,
+                          @RequestParam("setName") String setName,
+                          @RequestParam("condition") String condition,
+                          @RequestParam("language") String language,
+                          @RequestParam(value = "isFoil", required = false, defaultValue = "false") Boolean isFoil,
+                          @RequestParam("quantity") Integer quantity,
+                          @RequestParam(value = "purchasePrice", required = false) java.math.BigDecimal purchasePrice,
+                          Model model) {
+        
+        Card card = cardRepository.findAll().stream()
+                .filter(c -> c.getName().equalsIgnoreCase(name) && c.getSetName().equalsIgnoreCase(setName))
+                .findFirst()
+                .orElseGet(() -> cardRepository.save(new Card(name, setName, "Common")));
+
+        UserCard userCard = new UserCard(card, condition, language, isFoil, quantity, purchasePrice);
+        userCardRepository.save(userCard);
+
+        List<UserCard> userCards = userCardRepository.findAll();
+        model.addAttribute("userCards", userCards);
+        return "views/collection :: cardRows";
+    }
+
+    @PostMapping("/ai/chat")
+    @ResponseBody
     public String handleAiChat(@RequestParam("query") String query) {
-        // Simulate a delay to show the loading indicator
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -214,6 +188,6 @@ public class UIController {
                "<p class=\"text-gray-400\">Ceci est une réponse simulée de l'orchestrateur IA. Dans la version finale, ceci interrogera le modèle via Spring AI.</p>" +
                "</div>" +
                "</div>" +
-               "<script>lucide.createIcons();</script>"; // Re-init icons for the new HTML
+               "<script>lucide.createIcons();</script>";
     }
 }

@@ -35,7 +35,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-900 text-gray-200 h-screen flex overflow-hidden" hx-ext="json-enc">
+<body class="bg-slate-900 text-gray-200 h-screen flex overflow-hidden">
 
     <!-- Sidebar -->
     <aside class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
@@ -48,7 +48,7 @@
                 <i data-lucide="book-open" class="mr-3 w-5 h-5"></i>
                 <span th:text="#{sidebar.collection}">Ma Collection</span>
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-slate-700 hover:text-white transition-colors">
+            <a href="/ui/wishlist" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-slate-700 hover:text-white transition-colors">
                 <i data-lucide="star" class="mr-3 w-5 h-5"></i>
                 <span th:text="#{sidebar.wishlist}">Wishlist</span>
             </a>
@@ -109,6 +109,9 @@
 
         <!-- Notification Area -->
         <div id="notification-area" class="fixed bottom-4 right-4 z-50"></div>
+
+        <!-- Modal Container -->
+        <div id="modal-container"></div>
     </div>
 
     <script>
