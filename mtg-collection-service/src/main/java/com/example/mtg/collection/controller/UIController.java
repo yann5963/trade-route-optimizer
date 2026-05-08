@@ -76,6 +76,14 @@ public class UIController {
         return "views/settings";
     }
 
+    @PostMapping("/market/simulate")
+    @ResponseBody
+    public String simulateMarket(Model model) {
+        return "<div class=\"p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50\" role=\"alert\">" +
+               "<span class=\"font-medium\">Simulation réussie!</span> Achats simulés et ajoutés à la base de données (Mock)." +
+               "</div>";
+    }
+
     @GetMapping("/deals")
     public String getDealsDashboard(Model model) {
         try {
@@ -172,22 +180,4 @@ public class UIController {
         return "views/collection :: cardRows";
     }
 
-    @PostMapping("/ai/chat")
-    @ResponseBody
-    public String handleAiChat(@RequestParam("query") String query) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        return "<div class=\"flex items-start\">" +
-               "<i data-lucide=\"bot\" class=\"w-5 h-5 text-indigo-400 mt-0.5 mr-3 flex-shrink-0\"></i>" +
-               "<div>" +
-               "<p class=\"text-white font-medium mb-1\">Réponse de l'IA pour : <span class=\"text-indigo-300\">\"" + query + "\"</span></p>" +
-               "<p class=\"text-gray-400\">Ceci est une réponse simulée de l'orchestrateur IA. Dans la version finale, ceci interrogera le modèle via Spring AI.</p>" +
-               "</div>" +
-               "</div>" +
-               "<script>lucide.createIcons();</script>";
-    }
 }
