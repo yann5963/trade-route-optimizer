@@ -79,6 +79,11 @@ public class UIController {
         return "market-search";
     }
 
+    @GetMapping("/settings")
+    public String getSettingsPage(Model model) {
+        return "settings";
+    }
+
     /**
      * Renders the deals dashboard view, fetching active deals from the market service.
      *

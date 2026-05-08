@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::div.content})}">
+<head>
+    <title th:text="#{settings.title}">Paramètres</title>
+</head>
+<body>
+    <div class="content w-full max-w-4xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-white mb-2" th:text="#{settings.title}">Paramètres</h1>
+        </div>
+
+        <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-sm overflow-hidden p-6">
+            <h2 class="text-lg font-medium text-white mb-4 flex items-center">
+                <i data-lucide="globe" class="w-5 h-5 mr-2 text-indigo-400"></i>
+                <span th:text="#{settings.language}">Langue de l'interface</span>
+            </h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button hx-get="?lang=fr" hx-target="body" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-lg border border-slate-600 transition-colors flex items-center justify-center">
+                    🇫🇷 <span class="ml-2" th:text="#{settings.language.fr}">Français</span>
+                </button>
+                <button hx-get="?lang=en" hx-target="body" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-lg border border-slate-600 transition-colors flex items-center justify-center">
+                    🇬🇧 <span class="ml-2" th:text="#{settings.language.en}">English</span>
+                </button>
+                <button hx-get="?lang=de" hx-target="body" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-lg border border-slate-600 transition-colors flex items-center justify-center">
+                    🇩🇪 <span class="ml-2" th:text="#{settings.language.de}">Deutsch</span>
+                </button>
+                <button hx-get="?lang=es" hx-target="body" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-lg border border-slate-600 transition-colors flex items-center justify-center">
+                    🇪🇸 <span class="ml-2" th:text="#{settings.language.es}">Español</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

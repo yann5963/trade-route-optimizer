@@ -4,6 +4,8 @@ spring:
     username: yann
     password: postgresql
     driver-class-name: org.postgresql.Driver
+  messages:
+    basename: messages/messages
   jpa:
     hibernate:
       ddl-auto: validate
