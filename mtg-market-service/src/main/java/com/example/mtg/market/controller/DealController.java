@@ -18,18 +18,33 @@ public class DealController {
 
     private final CurrentDealRepository currentDealRepository;
 
-    public DealController(CurrentDealRepository currentDealRepository) {
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
+    public DealController(CurrentDealRepository currentDealRepository, org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
         this.currentDealRepository = currentDealRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @GetMapping
     public List<DealDTO> getActiveDeals() {
         return currentDealRepository.findByStatusOrderBySavingsPercentageDesc("ACTIVE")
                 .stream()
-                .map(deal -> new DealDTO(
+                .map(deal -> {
+                    String cardName = "Unknown Card Name";
+                    try {
+                        cardName = jdbcTemplate.queryForObject(
+                            "SELECT name FROM card WHERE id = ?",
+                            String.class,
+                            deal.getCardId()
+                        );
+                    } catch (Exception e) {
+                        // Card not found or other DB error
+                    }
+
+                    return new DealDTO(
                         deal.getId(),
                         deal.getCardId(),
-                        "Unknown Card Name", // In a real app, join with card catalog
+                        cardName,
                         deal.getSellerName(),
                         deal.getSellerCountry(),
                         deal.getCondition(),
@@ -39,7 +54,8 @@ public class DealController {
                         deal.getTrendPrice(),
                         deal.getSavingsPercentage(),
                         deal.getDetectedAt()
-                ))
+                    );
+                })
                 .collect(Collectors.toList());
     }
 

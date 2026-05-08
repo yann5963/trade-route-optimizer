@@ -81,7 +81,7 @@
                     <i data-lucide="bot" class="h-5 w-5 text-indigo-400"></i>
                 </div>
                 <!-- HTMX Form for AI command -->
-                <form hx-post="/ui/ai/chat" hx-target="#ai-results" hx-indicator="#loading-indicator">
+                <form hx-post="/api/ai/ask" hx-target="#ai-results" hx-indicator="#loading-indicator">
                     <input type="text" name="query" placeholder="Demandez à l'IA (ex: Trouve 4 Sol Ring moins chers)..."
                            class="block w-full pl-10 pr-3 py-2 border border-slate-600 rounded-md leading-5 bg-slate-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:bg-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm transition-colors">
                 </form>

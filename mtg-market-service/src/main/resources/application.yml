@@ -14,3 +14,11 @@ spring:
 
 server:
   port: 8082
+
+cardmarket:
+  api:
+    base-url: https://api.cardmarket.com
+    app-token: ${CARDMARKET_APP_TOKEN:default_app_token}
+    app-secret: ${CARDMARKET_APP_SECRET:default_app_secret}
+    access-token: ${CARDMARKET_ACCESS_TOKEN:default_access_token}
+    access-token-secret: ${CARDMARKET_ACCESS_TOKEN_SECRET:default_access_token_secret}
