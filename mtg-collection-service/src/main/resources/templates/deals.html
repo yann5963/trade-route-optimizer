@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::div.content})}">
 <head>
-    <title>Opportunités du Marché</title>
+    <title th:text="#{deals.title}">Opportunités du Marché</title>
 </head>
 <body>
     <div class="content w-full max-w-6xl mx-auto">
@@ -12,8 +12,8 @@
             }
         </style>
         <div class="mb-8">
-            <h1 class="text-2xl font-bold text-white mb-2">Opportunités du Marché</h1>
-            <p class="text-gray-400 text-sm">Cartes de votre Wishlist détectées en dessous de leur prix de tendance.</p>
+            <h1 class="text-2xl font-bold text-white mb-2" th:text="#{deals.title}">Opportunités du Marché</h1>
+            <p class="text-gray-400 text-sm" th:text="#{deals.subtitle}">Cartes de votre Wishlist détectées en dessous de leur prix de tendance.</p>
         </div>
 
         <!-- Deals Grid -->
@@ -59,7 +59,7 @@
                         <button th:attr="hx-post='/ui/deals/' + ${deal.id} + '/ignore'" hx-swap="outerHTML swap:0.5s" hx-target="closest .fade-out" class="p-1.5 rounded-md bg-slate-700 text-gray-400 hover:text-white hover:bg-slate-600 transition-colors" title="Ignorer cette offre">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
-                        <button th:attr="hx-post='/ui/deals/' + ${deal.id} + '/add'" hx-swap="outerHTML swap:0.5s" hx-target="closest .fade-out" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md font-medium text-xs transition-colors flex items-center shadow-lg shadow-indigo-900/20">
+                        <button th:attr="hx-post='/ui/deals/' + ${deal.id} + '/add'" hx-swap="outerHTML swap:0.5s" hx-target="closest .fade-out" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md font-medium text-xs transition-colors flex items-center shadow-lg shadow-indigo-900/20" th:text="#{market.simulate}">
                             Ajouter au Panier
                         </button>
                     </div>
@@ -69,7 +69,7 @@
             <!-- Empty State -->
             <div th:if="${deals == null or deals.isEmpty()}" class="col-span-full py-12 text-center text-gray-500">
                 <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-3 opacity-50"></i>
-                <p>Aucune bonne affaire détectée pour le moment.</p>
+                <p th:text="#{market.empty}">Aucune bonne affaire détectée pour le moment.</p>
             </div>
 
         </div>

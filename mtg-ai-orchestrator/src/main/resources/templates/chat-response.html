@@ -2,10 +2,10 @@
     <i data-lucide="bot" class="w-5 h-5 text-indigo-400 mt-0.5 mr-3 flex-shrink-0"></i>
     <div>
         <p class="text-white font-medium mb-1">
-            Réponse de l'IA pour : <span class="text-indigo-300" th:text="${query}">"Requête"</span>
+            <span th:text="#{ai.response.prefix}">Réponse de l'IA pour : </span><span class="text-indigo-300" th:text="${query}">"Requête"</span>
         </p>
         <p class="text-gray-400" th:text="${response}">
-            La réponse de l'IA apparaîtra ici.
+            <span th:text="#{ai.response.placeholder}">La réponse de l'IA apparaîtra ici.</span>
         </p>
     </div>
 </div>
