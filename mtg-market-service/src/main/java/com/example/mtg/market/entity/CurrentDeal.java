@@ -15,6 +15,9 @@ public class CurrentDeal {
     @Column(name = "card_id", nullable = false)
     private Long cardId;
 
+    @Column(name = "article_id")
+    private Long articleId;
+
     @Column(name = "seller_name", nullable = false)
     private String sellerName;
 
@@ -47,8 +50,9 @@ public class CurrentDeal {
 
     public CurrentDeal() {}
 
-    public CurrentDeal(Long cardId, String sellerName, String sellerCountry, String condition, String language, Boolean isFoil, BigDecimal price, BigDecimal trendPrice, BigDecimal savingsPercentage) {
+    public CurrentDeal(Long cardId, Long articleId, String sellerName, String sellerCountry, String condition, String language, Boolean isFoil, BigDecimal price, BigDecimal trendPrice, BigDecimal savingsPercentage) {
         this.cardId = cardId;
+        this.articleId = articleId;
         this.sellerName = sellerName;
         this.sellerCountry = sellerCountry;
         this.condition = condition;
@@ -63,6 +67,8 @@ public class CurrentDeal {
     public void setId(Long id) { this.id = id; }
     public Long getCardId() { return cardId; }
     public void setCardId(Long cardId) { this.cardId = cardId; }
+    public Long getArticleId() { return articleId; }
+    public void setArticleId(Long articleId) { this.articleId = articleId; }
     public String getSellerName() { return sellerName; }
     public void setSellerName(String sellerName) { this.sellerName = sellerName; }
     public String getSellerCountry() { return sellerCountry; }

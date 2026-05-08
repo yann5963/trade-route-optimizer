@@ -60,6 +60,7 @@ public class DealDetectorService {
 
             CurrentDeal newDeal = new CurrentDeal(
                     cardId, // valid card ID
+                    (long) (random.nextInt(1000) + 1), // random article ID
                     "Boutique_FR_" + random.nextInt(10), // Prioritize FR sellers
                     "FR",
                     "NM",

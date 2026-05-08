@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public class DealDTO {
     private Long id;
     private Long cardId;
+    private Long articleId;
     private String cardName; // Useful for UI without needing an extra fetch
     private String sellerName;
     private String sellerCountry;
@@ -19,9 +20,10 @@ public class DealDTO {
 
     public DealDTO() {}
 
-    public DealDTO(Long id, Long cardId, String cardName, String sellerName, String sellerCountry, String condition, String language, Boolean isFoil, BigDecimal price, BigDecimal trendPrice, BigDecimal savingsPercentage, LocalDateTime detectedAt) {
+    public DealDTO(Long id, Long cardId, Long articleId, String cardName, String sellerName, String sellerCountry, String condition, String language, Boolean isFoil, BigDecimal price, BigDecimal trendPrice, BigDecimal savingsPercentage, LocalDateTime detectedAt) {
         this.id = id;
         this.cardId = cardId;
+        this.articleId = articleId;
         this.cardName = cardName;
         this.sellerName = sellerName;
         this.sellerCountry = sellerCountry;
@@ -39,6 +41,8 @@ public class DealDTO {
     public void setId(Long id) { this.id = id; }
     public Long getCardId() { return cardId; }
     public void setCardId(Long cardId) { this.cardId = cardId; }
+    public Long getArticleId() { return articleId; }
+    public void setArticleId(Long articleId) { this.articleId = articleId; }
     public String getCardName() { return cardName; }
     public void setCardName(String cardName) { this.cardName = cardName; }
     public String getSellerName() { return sellerName; }

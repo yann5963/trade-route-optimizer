@@ -44,6 +44,7 @@ public class DealController {
                     return new DealDTO(
                         deal.getId(),
                         deal.getCardId(),
+                        deal.getArticleId(),
                         cardName,
                         deal.getSellerName(),
                         deal.getSellerCountry(),
