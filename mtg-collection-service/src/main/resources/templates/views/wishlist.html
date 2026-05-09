@@ -7,7 +7,9 @@
     <div class="content w-full max-w-6xl mx-auto">
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-2xl font-bold text-white" th:text="#{sidebar.wishlist}">Wishlist</h1>
-            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium text-sm transition-colors flex items-center">
+            <button hx-get="/ui/wishlist/add"
+                    hx-target="#modal-container"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium text-sm transition-colors flex items-center">
                 <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
                 <span th:text="#{collection.add}">Ajouter</span>
             </button>
@@ -24,8 +26,8 @@
                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-slate-800 divide-y divide-slate-700">
-                    <tr th:each="wishCard : ${wishlistCards}" class="hover:bg-slate-700/50 transition-colors">
+                <tbody id="wishlist-table-body" class="bg-slate-800 divide-y divide-slate-700">
+                    <tr th:fragment="wishlistRows" th:each="wishCard : ${wishlistCards}" class="hover:bg-slate-700/50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-10 w-10 bg-slate-700 rounded-md flex items-center justify-center overflow-hidden border border-slate-600">

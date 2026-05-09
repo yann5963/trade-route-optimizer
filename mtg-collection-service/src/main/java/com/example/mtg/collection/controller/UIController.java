@@ -157,6 +157,29 @@ public class UIController {
         return "fragments/add-card-modal :: add-card-form";
     }
 
+    @GetMapping("/wishlist/add")
+    public String getAddWishlistCardForm(Model model) {
+        return "fragments/add-wishlist-modal :: add-wishlist-form";
+    }
+
+    @PostMapping("/wishlist/add")
+    public String addWishlistCard(@RequestParam("name") String name,
+                                  @RequestParam("setName") String setName,
+                                  @RequestParam("quantity") Integer quantity,
+                                  Model model) {
+
+        // Use database query instead of loading all cards into memory
+        Card card = cardRepository.findByNameIgnoreCaseAndSetNameIgnoreCase(name, setName)
+                .orElseGet(() -> cardRepository.save(new Card(name, setName, "Common")));
+
+        WishlistCard wishlistCard = new WishlistCard(card, quantity);
+        wishlistCardRepository.save(wishlistCard);
+
+        List<WishlistCard> wishlistCards = wishlistCardRepository.findAll();
+        model.addAttribute("wishlistCards", wishlistCards);
+        return "views/wishlist :: wishlistRows";
+    }
+
     @PostMapping("/collection/add")
     public String addCard(@RequestParam("name") String name,
                           @RequestParam("setName") String setName,
