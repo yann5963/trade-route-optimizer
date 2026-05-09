@@ -9,7 +9,7 @@
             <h1 class="text-2xl font-bold text-white mb-2" th:text="#{settings.title}">Paramètres</h1>
         </div>
 
-        <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-sm overflow-hidden p-6">
+        <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-sm overflow-hidden p-6 mb-8">
             <h2 class="text-lg font-medium text-white mb-4 flex items-center">
                 <i data-lucide="globe" class="w-5 h-5 mr-2 text-indigo-400"></i>
                 <span th:text="#{settings.language}">Langue de l'interface</span>
@@ -29,6 +29,38 @@
                     🇪🇸 <span class="ml-2" th:text="#{settings.language.es}">Español</span>
                 </button>
             </div>
+        </div>
+
+        <!-- Base de connaissance (Scryfall Sync) -->
+        <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-sm overflow-hidden p-6">
+            <h2 class="text-lg font-medium text-white mb-4 flex items-center">
+                <i data-lucide="database" class="w-5 h-5 mr-2 text-indigo-400"></i>
+                Base de connaissance
+            </h2>
+
+            <div id="sync-status-container" th:fragment="sync-status-fragment" class="bg-slate-700/50 rounded-lg p-4 mb-4">
+                <div th:if="${syncStatus != null}">
+                    <p class="text-sm text-green-400 font-medium">
+                        Dernier import effectué le <span th:text="${#temporals.format(syncStatus.lastSyncDate, 'dd/MM/yyyy à HH:mm')}"></span>,
+                        votre base de libellé (<span th:text="${syncStatus.cardCount}"></span> cartes et <span th:text="${syncStatus.setCount}"></span> collections) est à jour.
+                    </p>
+                </div>
+                <div th:if="${syncStatus == null}">
+                    <p class="text-sm text-yellow-400 font-medium">
+                        Aucun import n'a encore été effectué. La recherche de cartes risque de ne pas fonctionner.
+                    </p>
+                </div>
+            </div>
+
+            <button hx-post="/api/admin/sync-scryfall"
+                    hx-target="#sync-status-container"
+                    hx-swap="outerHTML"
+                    hx-indicator="#sync-spinner"
+                    class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg border border-slate-600 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                Import depuis scryfall
+                <i data-lucide="loader-2" id="sync-spinner" class="htmx-indicator w-4 h-4 ml-2 animate-spin text-indigo-400"></i>
+            </button>
         </div>
     </div>
 </body>
