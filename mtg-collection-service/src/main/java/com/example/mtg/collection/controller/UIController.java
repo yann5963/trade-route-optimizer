@@ -4,8 +4,11 @@ import com.example.mtg.collection.entity.Card;
 import com.example.mtg.collection.entity.UserCard;
 import com.example.mtg.collection.entity.WishlistCard;
 import com.example.mtg.collection.repository.CardRepository;
+import com.example.mtg.collection.repository.MtgSetRepository;
+import com.example.mtg.collection.repository.SyncStatusRepository;
 import com.example.mtg.collection.repository.UserCardRepository;
 import com.example.mtg.collection.repository.WishlistCardRepository;
+import com.example.mtg.collection.entity.SyncStatus;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -28,14 +31,20 @@ public class UIController {
     private final UserCardRepository userCardRepository;
     private final WishlistCardRepository wishlistCardRepository;
     private final CardRepository cardRepository;
+    private final MtgSetRepository mtgSetRepository;
+    private final SyncStatusRepository syncStatusRepository;
     private final RestTemplate restTemplate;
 
     public UIController(UserCardRepository userCardRepository, 
                         WishlistCardRepository wishlistCardRepository,
-                        CardRepository cardRepository) {
+                        CardRepository cardRepository,
+                        MtgSetRepository mtgSetRepository,
+                        SyncStatusRepository syncStatusRepository) {
         this.userCardRepository = userCardRepository;
         this.wishlistCardRepository = wishlistCardRepository;
         this.cardRepository = cardRepository;
+        this.mtgSetRepository = mtgSetRepository;
+        this.syncStatusRepository = syncStatusRepository;
         this.restTemplate = new RestTemplate();
     }
 
@@ -73,6 +82,8 @@ public class UIController {
 
     @GetMapping("/settings")
     public String getSettingsPage(Model model) {
+        SyncStatus status = syncStatusRepository.findTopByOrderByIdDesc().orElse(null);
+        model.addAttribute("syncStatus", status);
         return "views/settings";
     }
 
@@ -154,6 +165,7 @@ public class UIController {
 
     @GetMapping("/collection/add")
     public String getAddCardForm(Model model) {
+        model.addAttribute("mtgSets", mtgSetRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "name")));
         return "fragments/add-card-modal :: add-card-form";
     }
 
