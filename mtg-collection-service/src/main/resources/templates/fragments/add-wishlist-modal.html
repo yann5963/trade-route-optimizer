@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="add-wishlist-form" id="modal-backdrop" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 border-b border-slate-700 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white" th:text="#{collection.add.title}">Ajouter une carte</h2>
+                <button onclick="document.getElementById('modal-backdrop').remove()" class="text-gray-400 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form hx-post="/ui/wishlist/add" hx-target="#wishlist-table-body" hx-on::after-request="if(event.detail.successful) document.getElementById('modal-backdrop').remove()" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.card_name}">Nom de la carte</label>
+                    <input type="text" name="name" required class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.set_name}">Édition</label>
+                    <input type="text" name="setName" required class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.quantity}">Quantité</label>
+                    <input type="number" name="quantity" value="1" min="1" class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="document.getElementById('modal-backdrop').remove()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 rounded-md transition-colors" th:text="#{collection.add.cancel}">Annuler</button>
+                    <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-md transition-colors" th:text="#{collection.add.submit}">Ajouter</button>
+                </div>
+            </form>
+            <script>lucide.createIcons();</script>
+        </div>
+    </div>
+</body>
+</html>
