@@ -9,7 +9,7 @@
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
-            <form hx-post="/ui/collection/add" hx-target="#collection-table-container" hx-on::after-request="if(event.detail.successful && event.detail.elt === this) document.getElementById('modal-backdrop').remove()" class="p-6 space-y-4">
+            <form hx-post="/ui/collection/add" hx-target="#collection-table-container" hx-on::after-request="if(event.detail.successful && event.detail.elt === this) { document.getElementById('modal-backdrop').remove(); htmx.trigger('#collection-stats', 'updateStats'); }" class="p-6 space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.set_name}">Édition</label>
                     <input type="text" id="setNameInput" name="setName" required list="setsList"
@@ -60,9 +60,15 @@
                         <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.quantity}">Quantité</label>
                         <input type="number" name="quantity" value="1" min="1" class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.purchase_price}">Prix d'achat (€)</label>
-                        <input type="number" step="0.01" name="purchasePrice" class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.purchase_price}">Prix d'achat (€)</label>
+                            <input type="number" step="0.01" name="purchasePrice" class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Prix de vente (€)</label>
+                            <input type="number" step="0.01" name="sellingPrice" class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                        </div>
                     </div>
                 </div>
                 <div class="flex items-center">

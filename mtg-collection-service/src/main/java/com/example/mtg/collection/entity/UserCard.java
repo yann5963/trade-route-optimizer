@@ -1,6 +1,7 @@
 package com.example.mtg.collection.entity;
 
 import jakarta.persistence.*;
+import com.example.mtg.collection.entity.Card;
 
 @Entity
 @Table(name = "user_card")
@@ -10,7 +11,7 @@ public class UserCard {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(targetEntity = Card.class)
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
@@ -28,15 +29,19 @@ public class UserCard {
     @Column(name = "purchase_price")
     private java.math.BigDecimal purchasePrice;
 
+    @Column(name = "selling_price")
+    private java.math.BigDecimal sellingPrice;
+
     public UserCard() {}
 
-    public UserCard(Card card, String condition, String language, Boolean isFoil, Integer quantity, java.math.BigDecimal purchasePrice) {
+    public UserCard(Card card, String condition, String language, Boolean isFoil, Integer quantity, java.math.BigDecimal purchasePrice, java.math.BigDecimal sellingPrice) {
         this.card = card;
         this.condition = condition;
         this.language = language;
         this.isFoil = isFoil;
         this.quantity = quantity;
         this.purchasePrice = purchasePrice;
+        this.sellingPrice = sellingPrice;
     }
 
     public Long getId() {
@@ -93,5 +98,17 @@ public class UserCard {
 
     public void setPurchasePrice(java.math.BigDecimal purchasePrice) {
         this.purchasePrice = purchasePrice;
+    }
+
+    public java.math.BigDecimal getSellingPrice() {
+        return sellingPrice;
+    }
+
+    public void setSellingPrice(java.math.BigDecimal sellingPrice) {
+        this.sellingPrice = sellingPrice;
+    }
+
+    public boolean isSold() {
+        return sellingPrice != null;
     }
 }

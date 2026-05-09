@@ -11,7 +11,7 @@
             </div>
             <form th:hx-post="'/ui/collection/edit/' + ${userCard.id}" 
                   hx-target="#collection-table-container" 
-                  hx-on::after-request="if(event.detail.successful && event.detail.elt === this) document.getElementById('modal-backdrop').remove()" 
+                  hx-on::after-request="if(event.detail.successful && event.detail.elt === this) { document.getElementById('modal-backdrop').remove(); htmx.trigger('#collection-stats', 'updateStats'); }" 
                   class="p-6 space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-1">Carte</label>
@@ -45,9 +45,15 @@
                         <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.quantity}">Quantité</label>
                         <input type="number" name="quantity" th:value="${userCard.quantity}" min="1" class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.purchase_price}">Prix d'achat (€)</label>
-                        <input type="number" step="0.01" name="purchasePrice" th:value="${userCard.purchasePrice}" class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.purchase_price}">Prix d'achat (€)</label>
+                            <input type="number" step="0.01" name="purchasePrice" th:value="${userCard.purchasePrice}" class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Prix de vente (€)</label>
+                            <input type="number" step="0.01" name="sellingPrice" th:value="${userCard.sellingPrice}" class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                        </div>
                     </div>
                 </div>
                 <div class="flex items-center">

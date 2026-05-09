@@ -2,6 +2,11 @@ package com.example.mtg.collection.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Comparator;
+import java.util.stream.Collectors;
+import com.example.mtg.collection.entity.Card;
 
 @Entity
 @Table(name = "wishlist_card")
@@ -11,7 +16,7 @@ public class WishlistCard {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(targetEntity = Card.class)
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
@@ -29,6 +34,9 @@ public class WishlistCard {
 
     @Column(name = "max_price")
     private BigDecimal maxPrice;
+
+    @OneToMany(mappedBy = "wishlistCard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WishlistCardPriceHistory> priceHistory = new ArrayList<>();
 
     public WishlistCard() {}
 
@@ -95,5 +103,30 @@ public class WishlistCard {
 
     public void setMaxPrice(BigDecimal maxPrice) {
         this.maxPrice = maxPrice;
+    }
+
+    public List<WishlistCardPriceHistory> getPriceHistory() {
+        return priceHistory;
+    }
+
+    public void setPriceHistory(List<WishlistCardPriceHistory> priceHistory) {
+        this.priceHistory = priceHistory;
+    }
+
+    public WishlistCardPriceHistory getLatestPriceHistory() {
+        if (priceHistory == null || priceHistory.isEmpty()) {
+            return null;
+        }
+        return priceHistory.stream()
+                .max(Comparator.comparing(WishlistCardPriceHistory::getRecordDate))
+                .orElse(null);
+    }
+
+    public List<WishlistCardPriceHistory> getRecentPriceHistory(int count) {
+        if (priceHistory == null) return new ArrayList<>();
+        return priceHistory.stream()
+                .sorted(Comparator.comparing(WishlistCardPriceHistory::getRecordDate).reversed())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }

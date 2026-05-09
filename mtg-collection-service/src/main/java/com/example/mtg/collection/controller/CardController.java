@@ -45,7 +45,7 @@ public class CardController {
     public ResponseEntity<UserCard> createUserCard(@RequestBody UserCardRequest request) {
         return cardRepository.findById(request.getCardId())
                 .map(card -> {
-                    UserCard userCard = new UserCard(card, request.getCondition(), request.getLanguage(), request.getIsFoil(), request.getQuantity(), request.getPurchasePrice());
+                    UserCard userCard = new UserCard(card, request.getCondition(), request.getLanguage(), request.getIsFoil(), request.getQuantity(), request.getPurchasePrice(), request.getSellingPrice());
                     return ResponseEntity.ok(userCardRepository.save(userCard));
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -118,5 +118,15 @@ class UserCardRequest {
 
     public void setPurchasePrice(java.math.BigDecimal purchasePrice) {
         this.purchasePrice = purchasePrice;
+    }
+
+    private java.math.BigDecimal sellingPrice;
+
+    public java.math.BigDecimal getSellingPrice() {
+        return sellingPrice;
+    }
+
+    public void setSellingPrice(java.math.BigDecimal sellingPrice) {
+        this.sellingPrice = sellingPrice;
     }
 }
