@@ -19,7 +19,7 @@ spring:
         - id: collection-service
           uri: http://localhost:8081
           predicates:
-            - Path=/api/collection/**, /ui/**
+            - Path=/api/collection/**, /ui/**, /api/admin/**, /api/reference/**
         - id: market-service
           uri: http://localhost:8082
           predicates:
