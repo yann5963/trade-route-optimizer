@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/api")
+@RequestMapping("/api/collection")
 public class ReferenceController {
 
     private final MtgSetRepository setRepository;
@@ -41,14 +41,22 @@ public class ReferenceController {
     }
 
     @GetMapping("/reference/cards")
-    public String getCardSuggestions(@RequestParam(name = "setName", required = false) String setCode,
+    public String getCardSuggestions(@RequestParam(name = "setName", required = false) String setIdentifier,
                                      @RequestParam(name = "name", required = false, defaultValue = "") String query,
                                      Model model) {
         List<MtgCardReference> cards;
-        if (setCode == null || setCode.isEmpty()) {
+        if (setIdentifier == null || setIdentifier.isEmpty()) {
             cards = List.of();
         } else {
-            cards = cardReferenceRepository.findBySetCodeAndNameContainingIgnoreCase(setCode, query);
+            // Try to find the set by code first, then by name
+            String finalSetCode = setIdentifier;
+            if (setRepository.findById(setIdentifier).isEmpty()) {
+                finalSetCode = setRepository.findByNameIgnoreCase(setIdentifier)
+                        .map(MtgSet::getCode)
+                        .orElse(setIdentifier);
+            }
+
+            cards = cardReferenceRepository.findBySetCodeAndNameContainingIgnoreCase(finalSetCode, query);
             // Limit suggestions to prevent huge payload
             cards = cards.stream().limit(50).collect(Collectors.toList());
         }

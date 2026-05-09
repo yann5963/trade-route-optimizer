@@ -9,12 +9,12 @@
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
-            <form hx-post="/ui/collection/add" hx-target="#collection-table-body" hx-on::after-request="if(event.detail.successful) document.getElementById('modal-backdrop').remove()" class="p-6 space-y-4">
+            <form hx-post="/ui/collection/add" hx-target="#collection-table-container" hx-on::after-request="if(event.detail.successful && event.detail.elt === this) document.getElementById('modal-backdrop').remove()" class="p-6 space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.set_name}">Édition</label>
                     <input type="text" id="setNameInput" name="setName" required list="setsList"
                            class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                           onchange="document.getElementById('cardNameInput').disabled = !this.value;">
+                           oninput="document.getElementById('cardNameInput').disabled = !this.value; if(this.value) htmx.trigger('#cardNameInput', 'loadCards');">
                     <datalist id="setsList">
                         <option th:each="set : ${mtgSets}" th:value="${set.code}" th:text="${set.name}"></option>
                     </datalist>
@@ -22,10 +22,10 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.card_name}">Nom de la carte</label>
                     <input type="text" id="cardNameInput" name="name" required disabled list="cardSuggestions"
-                           hx-get="/api/reference/cards"
-                           hx-trigger="keyup changed delay:300ms"
+                           hx-get="/api/collection/reference/cards"
+                           hx-trigger="keyup changed delay:300ms, loadCards"
                            hx-target="#cardSuggestions"
-                           hx-swap="outerHTML"
+                           hx-swap="innerHTML"
                            hx-include="[name='setName']"
                            class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     <datalist id="cardSuggestions">

@@ -11,6 +11,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,11 +29,16 @@ import java.util.List;
 @Service
 public class ScryfallSyncService {
 
+    private static final Logger log = LoggerFactory.getLogger(ScryfallSyncService.class);
+
     private final MtgSetRepository setRepository;
     private final MtgCardReferenceRepository cardReferenceRepository;
     private final SyncStatusRepository syncStatusRepository;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public ScryfallSyncService(MtgSetRepository setRepository,
                                MtgCardReferenceRepository cardReferenceRepository,
@@ -43,8 +52,10 @@ public class ScryfallSyncService {
 
     @Transactional
     public void syncAllReferences() {
+        log.info("Starting full Scryfall synchronization...");
         try {
             // 1. Sync Sets
+            log.info("Syncing MTG Sets...");
             ResponseEntity<String> setsResponse = restTemplate.getForEntity("https://api.scryfall.com/sets", String.class);
             JsonNode setsRoot = objectMapper.readTree(setsResponse.getBody());
             JsonNode dataNode = setsRoot.get("data");
@@ -65,11 +76,13 @@ public class ScryfallSyncService {
             }
 
             // 2. Get Bulk Data URI for default-cards
+            log.info("Fetching bulk data URI for default-cards...");
             ResponseEntity<String> bulkDataResponse = restTemplate.getForEntity("https://api.scryfall.com/bulk-data/default-cards", String.class);
             JsonNode bulkRoot = objectMapper.readTree(bulkDataResponse.getBody());
             String downloadUri = bulkRoot.get("download_uri").asText();
 
             // 3. Stream download and parse JSON using Jackson Streaming API
+            log.info("Downloading and parsing bulk data (this may take a few minutes)...");
             cardReferenceRepository.deleteAllInBatch();
             long cardCount = 0;
 
@@ -109,7 +122,10 @@ public class ScryfallSyncService {
 
                             if (batch.size() >= batchSize) {
                                 cardReferenceRepository.saveAll(batch);
+                                cardReferenceRepository.flush();
+                                entityManager.clear();
                                 batch.clear();
+                                log.info("Imported {} cards...", cardCount);
                             }
                         }
                     }
@@ -120,6 +136,7 @@ public class ScryfallSyncService {
             }
 
             // 4. Update Sync Status
+            log.info("Sync complete! Imported {} sets and {} cards.", setCount, cardCount);
             SyncStatus status = syncStatusRepository.findTopByOrderByIdDesc().orElse(new SyncStatus());
             status.setLastSyncDate(LocalDateTime.now());
             status.setSetCount(setCount);
@@ -127,7 +144,7 @@ public class ScryfallSyncService {
             syncStatusRepository.save(status);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to sync from Scryfall", e);
             throw new RuntimeException("Failed to sync from Scryfall", e);
         }
     }

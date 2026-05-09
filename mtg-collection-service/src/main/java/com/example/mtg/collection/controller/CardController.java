@@ -4,6 +4,7 @@ import com.example.mtg.collection.entity.Card;
 import com.example.mtg.collection.entity.UserCard;
 import com.example.mtg.collection.repository.CardRepository;
 import com.example.mtg.collection.repository.UserCardRepository;
+import com.example.mtg.collection.repository.WishlistCardRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,10 +16,14 @@ public class CardController {
 
     private final CardRepository cardRepository;
     private final UserCardRepository userCardRepository;
+    private final WishlistCardRepository wishlistCardRepository;
 
-    public CardController(CardRepository cardRepository, UserCardRepository userCardRepository) {
+    public CardController(CardRepository cardRepository, 
+                          UserCardRepository userCardRepository,
+                          WishlistCardRepository wishlistCardRepository) {
         this.cardRepository = cardRepository;
         this.userCardRepository = userCardRepository;
+        this.wishlistCardRepository = wishlistCardRepository;
     }
 
     @GetMapping("/cards")
@@ -44,6 +49,18 @@ public class CardController {
                     return ResponseEntity.ok(userCardRepository.save(userCard));
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/user-cards/{id}")
+    public ResponseEntity<Void> deleteUserCard(@PathVariable Long id) {
+        userCardRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/wishlist-cards/{id}")
+    public ResponseEntity<Void> deleteWishlistCard(@PathVariable Long id) {
+        wishlistCardRepository.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 }
 

@@ -9,7 +9,12 @@ import com.example.mtg.collection.repository.SyncStatusRepository;
 import com.example.mtg.collection.repository.UserCardRepository;
 import com.example.mtg.collection.repository.WishlistCardRepository;
 import com.example.mtg.collection.entity.SyncStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -22,11 +27,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Controller responsible for handling UI-related requests and rendering Thymeleaf templates.
+ * Controller responsible for handling UI-related requests and rendering
+ * Thymeleaf templates.
  */
 @Controller
 @RequestMapping("/ui")
 public class UIController {
+
+    @Value("${app.pagination.max-record-collection:6}")
+    private int maxRecordCollection;
+
+    @Value("${app.pagination.max-record-wishlist:6}")
+    private int maxRecordWishlist;
 
     private final UserCardRepository userCardRepository;
     private final WishlistCardRepository wishlistCardRepository;
@@ -35,11 +47,11 @@ public class UIController {
     private final SyncStatusRepository syncStatusRepository;
     private final RestTemplate restTemplate;
 
-    public UIController(UserCardRepository userCardRepository, 
-                        WishlistCardRepository wishlistCardRepository,
-                        CardRepository cardRepository,
-                        MtgSetRepository mtgSetRepository,
-                        SyncStatusRepository syncStatusRepository) {
+    public UIController(UserCardRepository userCardRepository,
+            WishlistCardRepository wishlistCardRepository,
+            CardRepository cardRepository,
+            MtgSetRepository mtgSetRepository,
+            SyncStatusRepository syncStatusRepository) {
         this.userCardRepository = userCardRepository;
         this.wishlistCardRepository = wishlistCardRepository;
         this.cardRepository = cardRepository;
@@ -49,30 +61,131 @@ public class UIController {
     }
 
     @GetMapping("/collection")
-    public String getCollectionDashboard(Model model) {
-        List<UserCard> userCards = userCardRepository.findAll();
-        model.addAttribute("userCards", userCards);
+    public String getCollectionDashboard(@RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "sortBy", defaultValue = "card.name") String sortBy,
+            @RequestParam(name = "direction", defaultValue = "ASC") String direction,
+            Model model) {
+        PageRequest pageRequest = PageRequest.of(page, maxRecordCollection,
+                Sort.by(Sort.Direction.fromString(direction), sortBy));
+        Page<UserCard> userCardPage = userCardRepository.findAll(pageRequest);
+
+        model.addAttribute("userCards", userCardPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", userCardPage.getTotalPages());
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("direction", direction);
+        model.addAttribute("mtgSets", mtgSetRepository.findAll(
+                org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "name")));
         return "views/collection";
     }
 
     @GetMapping("/wishlist")
-    public String getWishlistDashboard(Model model) {
-        List<WishlistCard> wishlistCards = wishlistCardRepository.findAll();
-        model.addAttribute("wishlistCards", wishlistCards);
+    public String getWishlistDashboard(@RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "sortBy", defaultValue = "card.name") String sortBy,
+            @RequestParam(name = "direction", defaultValue = "ASC") String direction,
+            Model model) {
+        PageRequest pageRequest = PageRequest.of(page, maxRecordWishlist,
+                Sort.by(Sort.Direction.fromString(direction), sortBy));
+        Page<WishlistCard> wishlistCardPage = wishlistCardRepository.findAll(pageRequest);
+
+        model.addAttribute("wishlistCards", wishlistCardPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", wishlistCardPage.getTotalPages());
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("direction", direction);
+        model.addAttribute("mtgSets", mtgSetRepository.findAll(
+                org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "name")));
         return "views/wishlist";
     }
 
     @GetMapping("/collection/filter")
-    public String filterCollection(@RequestParam(name = "filter", required = false, defaultValue = "") String filter, Model model) {
-        List<UserCard> allCards = userCardRepository.findAll();
+    public String filterCollection(@RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "sortBy", defaultValue = "card.name") String sortBy,
+            @RequestParam(name = "direction", defaultValue = "ASC") String direction,
+            @RequestParam(name = "filter", required = false, defaultValue = "") String filter,
+            @RequestParam(name = "setCode", required = false, defaultValue = "") String setCode,
+            @RequestParam(name = "foil", required = false, defaultValue = "all") String foil,
+            @RequestParam(name = "minPrice", required = false) java.math.BigDecimal minPrice,
+            @RequestParam(name = "maxPrice", required = false) java.math.BigDecimal maxPrice,
+            Model model) {
 
-        List<UserCard> filteredCards = allCards.stream()
-                .filter(uc -> uc.getCard().getName().toLowerCase().contains(filter.toLowerCase()) ||
-                              uc.getCard().getSetName().toLowerCase().contains(filter.toLowerCase()))
-                .collect(Collectors.toList());
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
+        PageRequest pageRequest = PageRequest.of(page, maxRecordCollection, sort);
 
-        model.addAttribute("userCards", filteredCards);
-        return "views/collection :: cardRows";
+        Specification<UserCard> spec = (root, query, cb) -> {
+            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+            if (!filter.isEmpty()) {
+                String lp = "%" + filter.toLowerCase() + "%";
+                predicates.add(cb.or(cb.like(cb.lower(root.get("card").get("name")), lp),
+                        cb.like(cb.lower(root.get("card").get("setName")), lp)));
+            }
+            if (!setCode.isEmpty()) {
+                predicates.add(cb.or(cb.equal(root.get("card").get("setName"), setCode),
+                        cb.equal(cb.lower(root.get("card").get("setName")), setCode.toLowerCase())));
+            }
+            if ("yes".equalsIgnoreCase(foil))
+                predicates.add(cb.isTrue(root.get("isFoil")));
+            if ("no".equalsIgnoreCase(foil))
+                predicates.add(cb.isFalse(root.get("isFoil")));
+            if (minPrice != null)
+                predicates.add(cb.greaterThanOrEqualTo(root.get("purchasePrice"), minPrice));
+            if (maxPrice != null)
+                predicates.add(cb.lessThanOrEqualTo(root.get("purchasePrice"), maxPrice));
+            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+
+        Page<UserCard> userCardPage = userCardRepository.findAll(spec, pageRequest);
+        model.addAttribute("userCards", userCardPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", userCardPage.getTotalPages());
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("direction", direction);
+        return "views/collection :: collectionTable";
+    }
+
+    @GetMapping("/wishlist/filter")
+    public String filterWishlist(@RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "sortBy", defaultValue = "card.name") String sortBy,
+            @RequestParam(name = "direction", defaultValue = "ASC") String direction,
+            @RequestParam(name = "filter", required = false, defaultValue = "") String filter,
+            @RequestParam(name = "setCode", required = false, defaultValue = "") String setCode,
+            @RequestParam(name = "foil", required = false, defaultValue = "all") String foil,
+            @RequestParam(name = "minPrice", required = false) java.math.BigDecimal minPrice,
+            @RequestParam(name = "maxPrice", required = false) java.math.BigDecimal maxPrice,
+            Model model) {
+
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
+        PageRequest pageRequest = PageRequest.of(page, maxRecordWishlist, sort);
+
+        Specification<WishlistCard> spec = (root, query, cb) -> {
+            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+            if (!filter.isEmpty()) {
+                String lp = "%" + filter.toLowerCase() + "%";
+                predicates.add(cb.or(cb.like(cb.lower(root.get("card").get("name")), lp),
+                        cb.like(cb.lower(root.get("card").get("setName")), lp)));
+            }
+            if (!setCode.isEmpty()) {
+                predicates.add(cb.or(cb.equal(root.get("card").get("setName"), setCode),
+                        cb.equal(cb.lower(root.get("card").get("setName")), setCode.toLowerCase())));
+            }
+            if ("yes".equalsIgnoreCase(foil))
+                predicates.add(cb.isTrue(root.get("isFoil")));
+            if ("no".equalsIgnoreCase(foil))
+                predicates.add(cb.isFalse(root.get("isFoil")));
+            if (minPrice != null)
+                predicates.add(cb.greaterThanOrEqualTo(root.get("maxPrice"), minPrice));
+            if (maxPrice != null)
+                predicates.add(cb.lessThanOrEqualTo(root.get("maxPrice"), maxPrice));
+            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+
+        Page<WishlistCard> wishlistCardPage = wishlistCardRepository.findAll(spec, pageRequest);
+        model.addAttribute("wishlistCards", wishlistCardPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", wishlistCardPage.getTotalPages());
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("direction", direction);
+        return "views/wishlist :: wishlistTable";
     }
 
     @GetMapping("/market")
@@ -91,8 +204,9 @@ public class UIController {
     @ResponseBody
     public String simulateMarket(Model model) {
         return "<div class=\"p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50\" role=\"alert\">" +
-               "<span class=\"font-medium\">Simulation réussie!</span> Achats simulés et ajoutés à la base de données (Mock)." +
-               "</div>";
+                "<span class=\"font-medium\">Simulation réussie!</span> Achats simulés et ajoutés à la base de données (Mock)."
+                +
+                "</div>";
     }
 
     @GetMapping("/deals")
@@ -102,8 +216,8 @@ public class UIController {
                     "http://localhost:8082/api/deals",
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<Object>>() {}
-            );
+                    new ParameterizedTypeReference<List<Object>>() {
+                    });
             model.addAttribute("deals", response.getBody());
         } catch (Exception e) {
             model.addAttribute("deals", new ArrayList<>());
@@ -138,8 +252,8 @@ public class UIController {
                     "http://localhost:8082/api/deals",
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<Object>>() {}
-            );
+                    new ParameterizedTypeReference<List<Object>>() {
+                    });
             model.addAttribute("deals", response.getBody());
         } catch (Exception e) {
             model.addAttribute("deals", new ArrayList<>());
@@ -154,9 +268,10 @@ public class UIController {
             Long count = restTemplate.getForObject("http://localhost:8082/api/deals/count", Long.class);
             if (count != null && count > 0) {
                 return "<span class=\"absolute top-3 right-3 flex h-3 w-3\">\n" +
-                       "  <span class=\"animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75\"></span>\n" +
-                       "  <span class=\"relative inline-flex rounded-full h-3 w-3 bg-red-500\"></span>\n" +
-                       "</span>";
+                        "  <span class=\"animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75\"></span>\n"
+                        +
+                        "  <span class=\"relative inline-flex rounded-full h-3 w-3 bg-red-500\"></span>\n" +
+                        "</span>";
             }
         } catch (Exception e) {
         }
@@ -165,54 +280,121 @@ public class UIController {
 
     @GetMapping("/collection/add")
     public String getAddCardForm(Model model) {
-        model.addAttribute("mtgSets", mtgSetRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "name")));
+        model.addAttribute("mtgSets", mtgSetRepository.findAll(
+                org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "name")));
         return "fragments/add-card-modal :: add-card-form";
     }
 
     @GetMapping("/wishlist/add")
     public String getAddWishlistCardForm(Model model) {
+        model.addAttribute("mtgSets", mtgSetRepository.findAll(
+                org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "name")));
         return "fragments/add-wishlist-modal :: add-wishlist-form";
     }
 
     @PostMapping("/wishlist/add")
     public String addWishlistCard(@RequestParam("name") String name,
-                                  @RequestParam("setName") String setName,
-                                  @RequestParam("quantity") Integer quantity,
-                                  Model model) {
+            @RequestParam("setName") String setName,
+            @RequestParam("condition") String condition,
+            @RequestParam("language") String language,
+            @RequestParam(value = "isFoil", required = false, defaultValue = "false") Boolean isFoil,
+            @RequestParam("quantity") Integer quantity,
+            @RequestParam(value = "maxPrice", required = false) java.math.BigDecimal maxPrice,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "sortBy", defaultValue = "card.name") String sortBy,
+            @RequestParam(name = "direction", defaultValue = "ASC") String direction,
+            Model model) {
 
-        // Use database query instead of loading all cards into memory
         Card card = cardRepository.findByNameIgnoreCaseAndSetNameIgnoreCase(name, setName)
                 .orElseGet(() -> cardRepository.save(new Card(name, setName, "Common")));
 
-        WishlistCard wishlistCard = new WishlistCard(card, quantity);
+        WishlistCard wishlistCard = new WishlistCard(card, condition, language, isFoil, quantity, maxPrice);
         wishlistCardRepository.save(wishlistCard);
 
-        List<WishlistCard> wishlistCards = wishlistCardRepository.findAll();
-        model.addAttribute("wishlistCards", wishlistCards);
-        return "views/wishlist :: wishlistRows";
+        return filterWishlist(page, sortBy, direction, "", "", "all", null, null, model);
     }
 
     @PostMapping("/collection/add")
     public String addCard(@RequestParam("name") String name,
-                          @RequestParam("setName") String setName,
-                          @RequestParam("condition") String condition,
-                          @RequestParam("language") String language,
-                          @RequestParam(value = "isFoil", required = false, defaultValue = "false") Boolean isFoil,
-                          @RequestParam("quantity") Integer quantity,
-                          @RequestParam(value = "purchasePrice", required = false) java.math.BigDecimal purchasePrice,
-                          Model model) {
-        
-        Card card = cardRepository.findAll().stream()
-                .filter(c -> c.getName().equalsIgnoreCase(name) && c.getSetName().equalsIgnoreCase(setName))
-                .findFirst()
+            @RequestParam("setName") String setName,
+            @RequestParam("condition") String condition,
+            @RequestParam("language") String language,
+            @RequestParam(value = "isFoil", required = false, defaultValue = "false") Boolean isFoil,
+            @RequestParam("quantity") Integer quantity,
+            @RequestParam(value = "purchasePrice", required = false) java.math.BigDecimal purchasePrice,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "sortBy", defaultValue = "card.name") String sortBy,
+            @RequestParam(name = "direction", defaultValue = "ASC") String direction,
+            Model model) {
+
+        Card card = cardRepository.findByNameIgnoreCaseAndSetNameIgnoreCase(name, setName)
                 .orElseGet(() -> cardRepository.save(new Card(name, setName, "Common")));
 
         UserCard userCard = new UserCard(card, condition, language, isFoil, quantity, purchasePrice);
         userCardRepository.save(userCard);
 
-        List<UserCard> userCards = userCardRepository.findAll();
-        model.addAttribute("userCards", userCards);
-        return "views/collection :: cardRows";
+        return filterCollection(page, sortBy, direction, "", "", "all", null, null, model);
     }
 
+    @GetMapping("/collection/edit/{id}")
+    public String getEditCardForm(@PathVariable Long id, Model model) {
+        userCardRepository.findById(id).ifPresent(userCard -> model.addAttribute("userCard", userCard));
+        model.addAttribute("mtgSets", mtgSetRepository.findAll(
+                org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "name")));
+        return "fragments/edit-card-modal :: edit-card-form";
+    }
+
+    @PostMapping("/collection/edit/{id}")
+    public String updateCard(@PathVariable Long id,
+            @RequestParam("condition") String condition,
+            @RequestParam("language") String language,
+            @RequestParam(value = "isFoil", required = false, defaultValue = "false") Boolean isFoil,
+            @RequestParam("quantity") Integer quantity,
+            @RequestParam(value = "purchasePrice", required = false) java.math.BigDecimal purchasePrice,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "sortBy", defaultValue = "card.name") String sortBy,
+            @RequestParam(name = "direction", defaultValue = "ASC") String direction,
+            Model model) {
+        userCardRepository.findById(id).ifPresent(userCard -> {
+            userCard.setCondition(condition);
+            userCard.setLanguage(language);
+            userCard.setIsFoil(isFoil);
+            userCard.setQuantity(quantity);
+            userCard.setPurchasePrice(purchasePrice);
+            userCardRepository.save(userCard);
+        });
+
+        return filterCollection(page, sortBy, direction, "", "", "all", null, null, model);
+    }
+
+    @GetMapping("/wishlist/edit/{id}")
+    public String getEditWishlistCardForm(@PathVariable Long id, Model model) {
+        wishlistCardRepository.findById(id).ifPresent(wishCard -> model.addAttribute("wishCard", wishCard));
+        model.addAttribute("mtgSets", mtgSetRepository.findAll(
+                org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "name")));
+        return "fragments/edit-wishlist-modal :: edit-wishlist-form";
+    }
+
+    @PostMapping("/wishlist/edit/{id}")
+    public String updateWishlistCard(@PathVariable Long id,
+            @RequestParam("condition") String condition,
+            @RequestParam("language") String language,
+            @RequestParam(value = "isFoil", required = false, defaultValue = "false") Boolean isFoil,
+            @RequestParam("quantity") Integer quantity,
+            @RequestParam(value = "maxPrice", required = false) java.math.BigDecimal maxPrice,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "sortBy", defaultValue = "card.name") String sortBy,
+            @RequestParam(name = "direction", defaultValue = "ASC") String direction,
+            Model model) {
+        wishlistCardRepository.findById(id).ifPresent(wishCard -> {
+            wishCard.setCondition(condition);
+            wishCard.setLanguage(language);
+            wishCard.setIsFoil(isFoil);
+            wishCard.setDesiredQuantity(quantity);
+            wishCard.setMaxPrice(maxPrice);
+            wishlistCardRepository.save(wishCard);
+        });
+
+        return filterWishlist(page, sortBy, direction, "", "", "all", null, null, model);
+    }
 }

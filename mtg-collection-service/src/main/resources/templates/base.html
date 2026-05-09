@@ -116,6 +116,9 @@
 
     <script>
         lucide.createIcons();
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            lucide.createIcons();
+        });
     </script>
 </body>
 </html>

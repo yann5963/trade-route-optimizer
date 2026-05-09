@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface MtgSetRepository extends JpaRepository<MtgSet, String> {
     Optional<MtgSet> findByCode(String code);
+    Optional<MtgSet> findByNameIgnoreCase(String name);
 }

@@ -15,41 +15,133 @@
             </button>
         </div>
 
-        <!-- Filter Input -->
-        <div class="mb-6">
-            <div class="relative max-w-md">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
+        <!-- Filter Section -->
+        <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 mb-8 shadow-sm">
+            <div id="filter-form" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
+                <!-- Search -->
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-medium text-gray-400 uppercase mb-1">Recherche</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
+                        </div>
+                        <input type="text" name="filter" th:placeholder="#{collection.filter}"
+                               class="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-md bg-slate-700 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-indigo-500 sm:text-sm">
+                    </div>
                 </div>
-                <input type="text" name="filter" th:placeholder="#{collection.filter}"
-                       hx-get="/ui/collection/filter"
-                       hx-trigger="keyup changed delay:300ms"
-                       hx-target="#collection-table-body"
-                       class="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-md leading-5 bg-slate-800 text-gray-300 placeholder-gray-500 focus:outline-none focus:bg-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm transition-colors">
+
+                <!-- Edition -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 uppercase mb-1">Édition</label>
+                    <select name="setCode" class="block w-full px-3 py-2 border border-slate-700 rounded-md bg-slate-700 text-gray-300 focus:outline-none focus:border-indigo-500 sm:text-sm">
+                        <option value="">Toutes</option>
+                        <option th:each="set : ${mtgSets}" th:value="${set.code}" th:text="${set.name}"></option>
+                    </select>
+                </div>
+
+                <!-- Foil -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 uppercase mb-1">Foil</label>
+                    <select name="foil" class="block w-full px-3 py-2 border border-slate-700 rounded-md bg-slate-700 text-gray-300 focus:outline-none focus:border-indigo-500 sm:text-sm">
+                        <option value="all">Tous</option>
+                        <option value="yes">Oui</option>
+                        <option value="no">Non</option>
+                    </select>
+                </div>
+
+                <!-- Price Min -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 uppercase mb-1">Prix Min (€)</label>
+                    <input type="number" step="0.01" name="minPrice" placeholder="0.00"
+                           class="block w-full px-3 py-2 border border-slate-700 rounded-md bg-slate-700 text-gray-300 focus:outline-none focus:border-indigo-500 sm:text-sm">
+                </div>
+
+                <!-- Price Max -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 uppercase mb-1">Prix Max (€)</label>
+                    <input type="number" step="0.01" name="maxPrice" placeholder="999"
+                           class="block w-full px-3 py-2 border border-slate-700 rounded-md bg-slate-700 text-gray-300 focus:outline-none focus:border-indigo-500 sm:text-sm">
+                </div>
+
+                <!-- Filter Button -->
+                <div class="lg:col-span-6 flex justify-end mt-2">
+                    <button hx-get="/ui/collection/filter"
+                            hx-target="#collection-table-container"
+                            hx-include="#filter-form input, #filter-form select"
+                            class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-md font-medium text-sm transition-colors flex items-center border border-slate-600">
+                        <i data-lucide="filter" class="w-4 h-4 mr-2"></i>
+                        Filtrer la liste
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Cards Table -->
-        <div class="bg-slate-800 shadow rounded-lg overflow-hidden border border-slate-700">
+        <!-- Cards Table Container -->
+        <div id="collection-table-container" th:fragment="collectionTable" class="bg-slate-800 shadow rounded-lg overflow-hidden border border-slate-700">
             <table class="min-w-full divide-y divide-slate-700">
                 <thead class="bg-slate-900/50">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" th:text="#{table.card}">Carte</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" th:text="#{table.set}">Édition</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                            th:hx-get="@{/ui/collection/filter(sortBy='card.name', direction=${sortBy == 'card.name' and direction == 'ASC' ? 'DESC' : 'ASC'})}"
+                            hx-target="#collection-table-container" 
+                            hx-include="#filter-form input, #filter-form select">
+                            <div class="flex items-center">
+                                <span th:text="#{table.card}">Carte</span>
+                                <i data-lucide="chevron-up" class="w-3 h-3 ml-1" th:if="${sortBy == 'card.name' && direction == 'ASC'}"></i>
+                                <i data-lucide="chevron-down" class="w-3 h-3 ml-1" th:if="${sortBy == 'card.name' && direction == 'DESC'}"></i>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                            th:hx-get="@{/ui/collection/filter(sortBy='card.setName', direction=${sortBy == 'card.setName' and direction == 'ASC' ? 'DESC' : 'ASC'})}"
+                            hx-target="#collection-table-container" 
+                            hx-include="#filter-form input, #filter-form select">
+                            <div class="flex items-center">
+                                <span th:text="#{table.set}">Édition</span>
+                                <i data-lucide="chevron-up" class="w-3 h-3 ml-1" th:if="${sortBy == 'card.setName' && direction == 'ASC'}"></i>
+                                <i data-lucide="chevron-down" class="w-3 h-3 ml-1" th:if="${sortBy == 'card.setName' && direction == 'DESC'}"></i>
+                            </div>
+                        </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" th:text="#{table.condition}">État</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" th:text="#{table.language}">Langue</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                            th:hx-get="@{/ui/collection/filter(sortBy='language', direction=${sortBy == 'language' and direction == 'ASC' ? 'DESC' : 'ASC'})}"
+                            hx-target="#collection-table-container" 
+                            hx-include="#filter-form input, #filter-form select">
+                            <div class="flex items-center">
+                                <span th:text="#{table.language}">Langue</span>
+                                <i data-lucide="chevron-up" class="w-3 h-3 ml-1" th:if="${sortBy == 'language' && direction == 'ASC'}"></i>
+                                <i data-lucide="chevron-down" class="w-3 h-3 ml-1" th:if="${sortBy == 'language' && direction == 'DESC'}"></i>
+                            </div>
+                        </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" th:text="#{table.foil}">Foil</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" th:text="#{table.quantity}">Quantité</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" th:text="#{table.purchasePrice}">Prix d'Achat</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                            th:hx-get="@{/ui/collection/filter(sortBy='quantity', direction=${sortBy == 'quantity' and direction == 'ASC' ? 'DESC' : 'ASC'})}"
+                            hx-target="#collection-table-container" 
+                            hx-include="#filter-form input, #filter-form select">
+                            <div class="flex items-center">
+                                <span th:text="#{table.quantity}">Quantité</span>
+                                <i data-lucide="chevron-up" class="w-3 h-3 ml-1" th:if="${sortBy == 'quantity' && direction == 'ASC'}"></i>
+                                <i data-lucide="chevron-down" class="w-3 h-3 ml-1" th:if="${sortBy == 'quantity' && direction == 'DESC'}"></i>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                            th:hx-get="@{/ui/collection/filter(sortBy='purchasePrice', direction=${sortBy == 'purchasePrice' and direction == 'ASC' ? 'DESC' : 'ASC'})}"
+                            hx-target="#collection-table-container" 
+                            hx-include="#filter-form input, #filter-form select">
+                            <div class="flex items-center">
+                                <span th:text="#{table.purchasePrice}">Prix d'Achat</span>
+                                <i data-lucide="chevron-up" class="w-3 h-3 ml-1" th:if="${sortBy == 'purchasePrice' && direction == 'ASC'}"></i>
+                                <i data-lucide="chevron-down" class="w-3 h-3 ml-1" th:if="${sortBy == 'purchasePrice' && direction == 'DESC'}"></i>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="collection-table-body" class="bg-slate-800 divide-y divide-slate-700">
-                    <!-- Default Fragment for HTMX update -->
+                    <!-- Data Rows -->
                     <tr th:fragment="cardRows" th:each="userCard : ${userCards}" class="hover:bg-slate-700/50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-10 w-10 bg-slate-700 rounded-md flex items-center justify-center overflow-hidden border border-slate-600">
-                                    <!-- Placeholder image or Scryfall logic could go here -->
                                     <i data-lucide="image" class="w-5 h-5 text-gray-500"></i>
                                 </div>
                                 <div class="ml-4">
@@ -69,10 +161,51 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-medium" th:text="${userCard.quantity}">1</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" th:text="${userCard.purchasePrice != null ? userCard.purchasePrice + ' €' : '-'}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
+                            <button th:hx-get="'/ui/collection/edit/' + ${userCard.id}"
+                                    hx-target="#modal-container"
+                                    class="text-indigo-400 hover:text-indigo-300 transition-colors">
+                                <i data-lucide="edit-3" class="w-5 h-5"></i>
+                            </button>
+                            <button th:hx-delete="'/api/collection/user-cards/' + ${userCard.id}"
+                                    hx-target="closest tr"
+                                    hx-swap="outerHTML"
+                                    hx-confirm="Êtes-vous sûr de vouloir supprimer cette carte ?"
+                                    class="text-red-400 hover:text-red-300 transition-colors">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Pagination Controls -->
+                    <tr th:fragment="pagination" th:if="${totalPages > 1}" class="bg-slate-900/30">
+                        <td colspan="8" class="px-6 py-3">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-400">
+                                    Page <span class="font-medium text-white" th:text="${currentPage + 1}">1</span> sur <span class="font-medium text-white" th:text="${totalPages}">10</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button th:if="${currentPage > 0}"
+                                            th:hx-get="@{/ui/collection/filter(page=${currentPage - 1}, sortBy=${sortBy}, direction=${direction})}"
+                                            hx-target="#collection-table-container"
+                                            hx-include="#filter-form input, #filter-form select"
+                                            class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-sm transition-colors text-white">
+                                        Précédent
+                                    </button>
+                                    <button th:if="${currentPage < totalPages - 1}"
+                                            th:hx-get="@{/ui/collection/filter(page=${currentPage + 1}, sortBy=${sortBy}, direction=${direction})}"
+                                            hx-target="#collection-table-container"
+                                            hx-include="#filter-form input, #filter-form select"
+                                            class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-sm transition-colors text-white">
+                                        Suivant
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
 
                     <tr th:if="${userCards == null or userCards.isEmpty()}">
-                        <td colspan="7" class="px-6 py-8 text-center text-gray-500 text-sm">
+                        <td colspan="8" class="px-6 py-8 text-center text-gray-500 text-sm">
                             <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-3 opacity-50"></i>
                             <span th:text="#{table.empty}">Votre collection est vide.</span>
                         </td>
