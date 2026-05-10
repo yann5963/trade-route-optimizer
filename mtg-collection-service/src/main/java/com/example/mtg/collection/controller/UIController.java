@@ -365,6 +365,7 @@ public class UIController {
     @PostMapping("/wishlist/add")
     public String addWishlistCard(@RequestParam("name") String name,
             @RequestParam("setName") String setName,
+            @RequestParam(value = "rarity", required = false, defaultValue = "Common") String rarityParam,
             @RequestParam("condition") String condition,
             @RequestParam("language") String language,
             @RequestParam(value = "isFoil", required = false, defaultValue = "false") Boolean isFoil,
@@ -382,9 +383,9 @@ public class UIController {
         Card card = cardRepository.findByNameIgnoreCaseAndSetNameIgnoreCase(name, resolvedSetCode)
                 .orElseGet(() -> {
                     String rarity = mtgCardReferenceRepository
-                            .findByNameIgnoreCaseAndSetCodeIgnoreCase(name, resolvedSetCode)
-                            .map(ref -> ref.getRarity() != null ? ref.getRarity() : "Common")
-                            .orElse("Common");
+                            .findFirstByNameIgnoreCaseAndSetCodeIgnoreCase(name, resolvedSetCode)
+                            .map(ref -> ref.getRarity() != null ? ref.getRarity() : rarityParam)
+                            .orElse(rarityParam);
                     return cardRepository.save(new Card(name, resolvedSetCode, rarity));
                 });
 
@@ -403,6 +404,7 @@ public class UIController {
     @PostMapping("/collection/add")
     public String addCard(@RequestParam("name") String name,
             @RequestParam("setName") String setName,
+            @RequestParam(value = "rarity", required = false, defaultValue = "Common") String rarityParam,
             @RequestParam("condition") String condition,
             @RequestParam("language") String language,
             @RequestParam(value = "isFoil", required = false, defaultValue = "false") Boolean isFoil,
@@ -422,9 +424,9 @@ public class UIController {
         Card card = cardRepository.findByNameIgnoreCaseAndSetNameIgnoreCase(name, resolvedSetCode)
                 .orElseGet(() -> {
                     String rarity = mtgCardReferenceRepository
-                            .findByNameIgnoreCaseAndSetCodeIgnoreCase(name, resolvedSetCode)
-                            .map(ref -> ref.getRarity() != null ? ref.getRarity() : "Common")
-                            .orElse("Common");
+                            .findFirstByNameIgnoreCaseAndSetCodeIgnoreCase(name, resolvedSetCode)
+                            .map(ref -> ref.getRarity() != null ? ref.getRarity() : rarityParam)
+                            .orElse(rarityParam);
                     return cardRepository.save(new Card(name, resolvedSetCode, rarity));
                 });
 
