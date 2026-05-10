@@ -54,7 +54,9 @@ public class CardController {
     @DeleteMapping("/user-cards/{id}")
     public ResponseEntity<Void> deleteUserCard(@PathVariable Long id) {
         userCardRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok()
+                .header("HX-Trigger", "updateStats")
+                .build();
     }
 
     @DeleteMapping("/wishlist-cards/{id}")
