@@ -156,8 +156,8 @@ public class ScryfallSyncService {
                         .or(() -> setRepository.findByNameIgnoreCase(c.getSetName()).map(MtgSet::getCode))
                         .orElse(c.getSetName());
 
-                    cardReferenceRepository.findByNameIgnoreCaseAndSetCode(c.getName(), setCode).stream()
-                        .findFirst()
+                    cardReferenceRepository.findFirstByNameIgnoreCaseAndSetCodeIgnoreCase(c.getName(), setCode)
+                        .or(() -> cardReferenceRepository.findFirstByNameContainingIgnoreCaseAndSetCodeIgnoreCase(c.getName(), setCode))
                         .ifPresent(ref -> {
                             if (ref.getRarity() != null && !"Common".equals(ref.getRarity())) {
                                 c.setRarity(ref.getRarity());

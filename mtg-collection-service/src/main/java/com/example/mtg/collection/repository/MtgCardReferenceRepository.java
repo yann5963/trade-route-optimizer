@@ -11,5 +11,6 @@ public interface MtgCardReferenceRepository extends JpaRepository<MtgCardReferen
     List<MtgCardReference> findBySetCodeAndNameContainingIgnoreCase(String setCode, String name);
     List<MtgCardReference> findBySetCode(String setCode);
     java.util.Optional<MtgCardReference> findFirstByNameIgnoreCaseAndSetCodeIgnoreCase(String name, String setCode);
+    java.util.Optional<MtgCardReference> findFirstByNameContainingIgnoreCaseAndSetCodeIgnoreCase(String name, String setCode);
     List<MtgCardReference> findByNameIgnoreCaseAndSetCode(String name, String setCode);
 }
