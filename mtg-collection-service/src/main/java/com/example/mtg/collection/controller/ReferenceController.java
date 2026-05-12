@@ -34,12 +34,6 @@ public class ReferenceController {
         this.scryfallSyncService = scryfallSyncService;
     }
 
-    @GetMapping("/reference/sets")
-    @ResponseBody
-    public List<MtgSet> getSets() {
-        return setRepository.findAll();
-    }
-
     @GetMapping("/reference/cards")
     public String getCardSuggestions(@RequestParam(name = "setName", required = false) String setIdentifier,
                                      @RequestParam(name = "name", required = false, defaultValue = "") String query,

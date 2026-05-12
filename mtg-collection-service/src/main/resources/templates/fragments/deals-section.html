@@ -57,7 +57,7 @@
                     <button th:attr="hx-post='/ui/deals/' + ${deal.id} + '/ignore'" hx-swap="outerHTML swap:0.5s" hx-target="closest .fade-out" class="p-1.5 rounded-md bg-slate-700 text-gray-400 hover:text-white hover:bg-slate-600 transition-colors" title="Ignorer cette offre">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
-                    <button th:attr="hx-post='/api/market/cart/sync', hx-vals='{&quot;articles&quot;: [{&quot;idArticle&quot;: ' + ${deal.articleId} + ', &quot;count&quot;: 1}]}'" hx-swap="outerHTML swap:0.5s" hx-target="closest .fade-out" hx-indicator="#loading-indicator" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md font-medium text-xs transition-colors flex items-center shadow-lg shadow-indigo-900/20" th:text="#{market.add_to_cart}">
+                    <button th:attr="hx-post='/api/market/cart/sync', hx-vals='{&quot;articles&quot;: [{&quot;idArticle&quot;: ' + ${deal.articleId} + ', &quot;count&quot;: 1}]}'" hx-ext="json-enc" hx-swap="outerHTML swap:0.5s" hx-target="closest .fade-out" hx-indicator="#loading-indicator" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md font-medium text-xs transition-colors flex items-center shadow-lg shadow-indigo-900/20" th:text="#{market.add_to_cart}">
                         Ajouter au Panier Cardmarket
                     </button>
                 </div>
