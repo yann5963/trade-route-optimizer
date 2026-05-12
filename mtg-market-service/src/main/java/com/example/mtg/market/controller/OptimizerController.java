@@ -24,11 +24,6 @@ public class OptimizerController {
         this.cartSyncService = cartSyncService;
     }
 
-    @PostMapping("/optimize")
-    public List<Map<String, Object>> optimize(@RequestBody List<String> cardNames) {
-        return cartOptimizerService.optimizeCart(cardNames);
-    }
-
     @PostMapping(value = "/cart/sync", produces = MediaType.TEXT_HTML_VALUE)
     public String syncCart(@RequestBody Map<String, List<ArticleToBuy>> payload) {
         List<ArticleToBuy> articles = payload.get("articles");

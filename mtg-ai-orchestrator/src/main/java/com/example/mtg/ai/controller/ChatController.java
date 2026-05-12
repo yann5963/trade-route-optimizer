@@ -18,7 +18,7 @@ public class ChatController {
     }
 
     @PostMapping("/ask")
-    public String askAi(@RequestParam("query") String query, Model model) {
+    public String askAi(@RequestParam("query") String query, Model model, jakarta.servlet.http.HttpServletRequest request) {
 
         String aiResponse = chatClient.prompt()
                 .user(query)
@@ -29,6 +29,9 @@ public class ChatController {
         model.addAttribute("query", query);
         model.addAttribute("response", aiResponse);
 
+        if ("true".equals(request.getHeader("HX-Request"))) {
+            return "chat-response :: chatResponse";
+        }
         return "chat-response";
     }
 }

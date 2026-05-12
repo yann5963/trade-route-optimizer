@@ -11,7 +11,7 @@
             </div>
             <form th:hx-post="'/ui/collection/edit/' + ${userCard.id}" 
                   hx-target="#collection-table-container" 
-                  hx-on::after-request="if(event.detail.successful && event.detail.elt === this) { document.getElementById('modal-backdrop').remove(); htmx.trigger('#collection-stats', 'updateStats'); }" 
+                  hx-on::after-request="if(event.detail.successful && event.detail.elt === this) { document.getElementById('modal-backdrop').remove(); htmx.trigger('body', 'updateStats'); }" 
                   class="p-6 space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-1">Carte</label>

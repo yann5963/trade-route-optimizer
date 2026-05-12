@@ -1,6 +1,7 @@
 package com.example.mtg.collection.controller;
 
 import com.example.mtg.collection.entity.Card;
+import com.example.mtg.collection.entity.MtgSet;
 import com.example.mtg.collection.entity.UserCard;
 import com.example.mtg.collection.entity.WishlistCard;
 import com.example.mtg.collection.entity.WishlistCardPriceHistory;
@@ -9,6 +10,7 @@ import com.example.mtg.collection.repository.MtgSetRepository;
 import com.example.mtg.collection.repository.SyncStatusRepository;
 import com.example.mtg.collection.repository.UserCardRepository;
 import com.example.mtg.collection.repository.WishlistCardRepository;
+import com.example.mtg.collection.repository.MtgCardReferenceRepository;
 import com.example.mtg.collection.entity.SyncStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -22,12 +24,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDate;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Controller responsible for handling UI-related requests and rendering
@@ -48,18 +50,21 @@ public class UIController {
     private final CardRepository cardRepository;
     private final MtgSetRepository mtgSetRepository;
     private final SyncStatusRepository syncStatusRepository;
+    private final MtgCardReferenceRepository mtgCardReferenceRepository;
     private final RestTemplate restTemplate;
 
     public UIController(UserCardRepository userCardRepository,
             WishlistCardRepository wishlistCardRepository,
             CardRepository cardRepository,
             MtgSetRepository mtgSetRepository,
-            SyncStatusRepository syncStatusRepository) {
+            SyncStatusRepository syncStatusRepository,
+            MtgCardReferenceRepository mtgCardReferenceRepository) {
         this.userCardRepository = userCardRepository;
         this.wishlistCardRepository = wishlistCardRepository;
         this.cardRepository = cardRepository;
         this.mtgSetRepository = mtgSetRepository;
         this.syncStatusRepository = syncStatusRepository;
+        this.mtgCardReferenceRepository = mtgCardReferenceRepository;
         this.restTemplate = new RestTemplate();
     }
 
@@ -79,10 +84,10 @@ public class UIController {
         model.addAttribute("direction", direction);
         model.addAttribute("mtgSets", mtgSetRepository.findAll(
                 org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "name")));
-        
+
         List<UserCard> allCards = userCardRepository.findAll();
         calculateAndAddStats(allCards, model);
-        
+
         return "views/collection";
     }
 
@@ -92,10 +97,12 @@ public class UIController {
 
         for (UserCard card : cards) {
             if (card.getPurchasePrice() != null) {
-                totalInvestment = totalInvestment.add(card.getPurchasePrice().multiply(java.math.BigDecimal.valueOf(card.getQuantity())));
+                totalInvestment = totalInvestment
+                        .add(card.getPurchasePrice().multiply(java.math.BigDecimal.valueOf(card.getQuantity())));
             }
             if (card.getSellingPrice() != null) {
-                totalSales = totalSales.add(card.getSellingPrice().multiply(java.math.BigDecimal.valueOf(card.getQuantity())));
+                totalSales = totalSales
+                        .add(card.getSellingPrice().multiply(java.math.BigDecimal.valueOf(card.getQuantity())));
             }
         }
         java.math.BigDecimal balance = totalSales.subtract(totalInvestment);
@@ -358,6 +365,7 @@ public class UIController {
     @PostMapping("/wishlist/add")
     public String addWishlistCard(@RequestParam("name") String name,
             @RequestParam("setName") String setName,
+            @RequestParam(value = "rarity", required = false, defaultValue = "Common") String rarityParam,
             @RequestParam("condition") String condition,
             @RequestParam("language") String language,
             @RequestParam(value = "isFoil", required = false, defaultValue = "false") Boolean isFoil,
@@ -370,16 +378,22 @@ public class UIController {
             @RequestParam(value = "marketPriceDate", required = false) LocalDate marketPriceDate,
             Model model) {
 
-        Card card = cardRepository.findByNameIgnoreCaseAndSetNameIgnoreCase(name, setName)
-                .orElseGet(() -> cardRepository.save(new Card(name, setName, "Common")));
+        String resolvedSetCode = resolveSetCode(setName);
+
+        Card card = cardRepository.findByNameIgnoreCaseAndSetNameIgnoreCase(name, resolvedSetCode)
+                .map(existingCard -> fixCardRarityIfNeeded(existingCard, name, resolvedSetCode))
+                .orElseGet(() -> {
+                    String rarity = resolveRarity(name, resolvedSetCode, rarityParam);
+                    return cardRepository.save(new Card(name, resolvedSetCode, rarity));
+                });
 
         WishlistCard wishlistCard = new WishlistCard(card, condition, language, isFoil, quantity, maxPrice);
-        
+
         if (marketPrice != null) {
             LocalDate date = marketPriceDate != null ? marketPriceDate : LocalDate.now();
             wishlistCard.getPriceHistory().add(new WishlistCardPriceHistory(wishlistCard, marketPrice, date));
         }
-        
+
         wishlistCardRepository.save(wishlistCard);
 
         return filterWishlist(page, sortBy, direction, "", "", "all", null, null, model);
@@ -388,6 +402,7 @@ public class UIController {
     @PostMapping("/collection/add")
     public String addCard(@RequestParam("name") String name,
             @RequestParam("setName") String setName,
+            @RequestParam(value = "rarity", required = false, defaultValue = "Common") String rarityParam,
             @RequestParam("condition") String condition,
             @RequestParam("language") String language,
             @RequestParam(value = "isFoil", required = false, defaultValue = "false") Boolean isFoil,
@@ -397,10 +412,19 @@ public class UIController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "sortBy", defaultValue = "card.name") String sortBy,
             @RequestParam(name = "direction", defaultValue = "ASC") String direction,
-            Model model) {
+            Model model,
+            HttpServletResponse response) {
 
-        Card card = cardRepository.findByNameIgnoreCaseAndSetNameIgnoreCase(name, setName)
-                .orElseGet(() -> cardRepository.save(new Card(name, setName, "Common")));
+        response.setHeader("HX-Trigger", "updateStats");
+
+        String resolvedSetCode = resolveSetCode(setName);
+
+        Card card = cardRepository.findByNameIgnoreCaseAndSetNameIgnoreCase(name, resolvedSetCode)
+                .map(existingCard -> fixCardRarityIfNeeded(existingCard, name, resolvedSetCode))
+                .orElseGet(() -> {
+                    String rarity = resolveRarity(name, resolvedSetCode, rarityParam);
+                    return cardRepository.save(new Card(name, resolvedSetCode, rarity));
+                });
 
         UserCard userCard = new UserCard(card, condition, language, isFoil, quantity, purchasePrice, sellingPrice);
         userCardRepository.save(userCard);
@@ -427,7 +451,10 @@ public class UIController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "sortBy", defaultValue = "card.name") String sortBy,
             @RequestParam(name = "direction", defaultValue = "ASC") String direction,
-            Model model) {
+            Model model,
+            HttpServletResponse response) {
+
+        response.setHeader("HX-Trigger", "updateStats");
         userCardRepository.findById(id).ifPresent(userCard -> {
             userCard.setCondition(condition);
             userCard.setLanguage(language);
@@ -468,15 +495,63 @@ public class UIController {
             wishCard.setIsFoil(isFoil);
             wishCard.setDesiredQuantity(quantity);
             wishCard.setMaxPrice(maxPrice);
-            
+
             if (marketPrice != null) {
                 LocalDate date = marketPriceDate != null ? marketPriceDate : LocalDate.now();
                 wishCard.getPriceHistory().add(new WishlistCardPriceHistory(wishCard, marketPrice, date));
             }
-            
+
             wishlistCardRepository.save(wishCard);
         });
 
         return filterWishlist(page, sortBy, direction, "", "", "all", null, null, model);
     }
+
+    private String resolveSetCode(String setIdentifier) {
+        if (setIdentifier == null || setIdentifier.isEmpty())
+            return setIdentifier;
+        return mtgSetRepository.findByCode(setIdentifier)
+                .map(MtgSet::getCode)
+                .or(() -> mtgSetRepository.findByNameIgnoreCase(setIdentifier)
+                        .map(MtgSet::getCode))
+                .orElse(setIdentifier);
+    }
+
+    /**
+     * Resolves the rarity of a card by looking up the reference table.
+     * First tries an exact name match, then falls back to a partial (contains)
+     * match.
+     * This handles cases where the user types a partial name (e.g., "Aurelia")
+     * but the reference stores the full name (e.g., "Aurelia, the Law Above").
+     */
+    private String resolveRarity(String name, String setCode, String fallback) {
+        String searchName = name.contains("//")
+                ? name.split("//")[0].trim()
+                : name.trim();
+        // 1. Try exact name match (case-insensitive)
+        return mtgCardReferenceRepository
+                .findFirstByNameIgnoreCaseAndSetCodeIgnoreCase(searchName, setCode)
+                .map(ref -> ref.getRarity() != null ? ref.getRarity() : fallback)
+                // 2. Fall back to partial name match (contains, case-insensitive)
+                .or(() -> mtgCardReferenceRepository
+                        .findFirstByNameContainingIgnoreCaseAndSetCodeIgnoreCase(name, setCode)
+                        .map(ref -> ref.getRarity() != null ? ref.getRarity() : fallback))
+                .orElse(fallback);
+    }
+
+    /**
+     * Checks if an existing card has a potentially incorrect "Common" rarity
+     * and fixes it by looking up the reference table.
+     */
+    private Card fixCardRarityIfNeeded(Card card, String name, String setCode) {
+        if ("Common".equals(card.getRarity())) {
+            String correctRarity = resolveRarity(name, setCode, "Common");
+            if (!"Common".equals(correctRarity)) {
+                card.setRarity(correctRarity);
+                cardRepository.save(card);
+            }
+        }
+        return card;
+    }
+
 }

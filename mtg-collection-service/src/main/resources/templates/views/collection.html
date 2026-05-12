@@ -93,7 +93,7 @@
                     <button hx-get="/ui/collection/filter"
                             hx-target="#collection-table-container"
                             hx-include="#filter-form input, #filter-form select"
-                            hx-on:click="htmx.trigger('#collection-stats', 'updateStats')"
+                            hx-on:click="htmx.trigger('body', 'updateStats')"
                             class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-md font-medium text-sm transition-colors flex items-center border border-slate-600">
                         <i data-lucide="filter" class="w-4 h-4 mr-2"></i>
                         Filtrer la liste
@@ -212,7 +212,7 @@
                                     hx-target="closest tr"
                                     hx-swap="outerHTML"
                                     hx-confirm="Êtes-vous sûr de vouloir supprimer cette carte ?"
-                                    hx-on::after-request="if(event.detail.successful) htmx.trigger('#collection-stats', 'updateStats')"
+                                    hx-on::after-request="if(event.detail.successful) htmx.trigger('body', 'updateStats')"
                                     class="text-red-400 hover:text-red-300 transition-colors">
                                 <i data-lucide="trash-2" class="w-5 h-5"></i>
                             </button>

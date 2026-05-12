@@ -19,12 +19,16 @@ public class MtgCardReference {
     @Column(name = "set_code", nullable = false)
     private String setCode;
 
+    @Column(name = "rarity")
+    private String rarity;
+
     public MtgCardReference() {}
 
-    public MtgCardReference(String name, String scryfallId, String setCode) {
+    public MtgCardReference(String name, String scryfallId, String setCode, String rarity) {
         this.name = name;
         this.scryfallId = scryfallId;
         this.setCode = setCode;
+        this.rarity = rarity;
     }
 
     public Long getId() { return id; }
@@ -38,4 +42,7 @@ public class MtgCardReference {
 
     public String getSetCode() { return setCode; }
     public void setSetCode(String setCode) { this.setCode = setCode; }
+
+    public String getRarity() { return rarity; }
+    public void setRarity(String rarity) { this.rarity = rarity; }
 }

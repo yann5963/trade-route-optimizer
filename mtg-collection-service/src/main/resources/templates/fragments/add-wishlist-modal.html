@@ -10,25 +10,27 @@
                 </button>
             </div>
             <form hx-post="/ui/wishlist/add" hx-target="#wishlist-table-container" hx-on::after-request="if(event.detail.successful && event.detail.elt === this) document.getElementById('modal-backdrop').remove()" class="p-6 space-y-4">
+                <!-- Champ caché pour le code d'édition réel envoyé au serveur -->
+                <input type="hidden" id="setCodeHiddenWish" name="setName">
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.set_name}">Édition</label>
-                    <input type="text" id="setNameInput" name="setName" required list="setsList"
-                           class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                           oninput="document.getElementById('cardNameInput').disabled = !this.value; if(this.value) htmx.trigger('#cardNameInput', 'loadCards');">
-                    <datalist id="setsList">
-                        <option th:each="set : ${mtgSets}" th:value="${set.code}" th:text="${set.name}"></option>
+                    <input type="text" id="setNameDisplayWish" required list="setsListWish"
+                           placeholder="Tapez le nom ou code de l'édition..."
+                           class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                    <datalist id="setsListWish">
+                        <option th:each="set : ${mtgSets}" th:attr="data-code=${set.code}" th:value="${set.name}"></option>
                     </datalist>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.card_name}">Nom de la carte</label>
-                    <input type="text" id="cardNameInput" name="name" required disabled list="cardSuggestions"
+                    <input type="text" id="cardNameInputWish" name="name" required disabled list="cardSuggestionsWish"
                            hx-get="/api/collection/reference/cards"
                            hx-trigger="keyup changed delay:300ms, loadCards"
-                           hx-target="#cardSuggestions"
+                           hx-target="#cardSuggestionsWish"
                            hx-swap="innerHTML"
-                           hx-include="[name='setName']"
+                           hx-include="#setCodeHiddenWish"
                            class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                    <datalist id="cardSuggestions">
+                    <datalist id="cardSuggestionsWish">
                         <!-- Options will be loaded via HTMX -->
                     </datalist>
                 </div>
@@ -55,6 +57,7 @@
                         </select>
                     </div>
                 </div>
+                <input type="hidden" name="rarity" value="Common">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1" th:text="#{collection.add.quantity}">Quantité</label>
@@ -84,7 +87,40 @@
                     <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-md transition-colors" th:text="#{collection.add.submit}">Ajouter</button>
                 </div>
             </form>
-            <script>lucide.createIcons();</script>
+            <script>
+                lucide.createIcons();
+
+                (function() {
+                    var displayInput = document.getElementById('setNameDisplayWish');
+                    var codeInput    = document.getElementById('setCodeHiddenWish');
+                    var cardInput    = document.getElementById('cardNameInputWish');
+                    var datalist     = document.getElementById('setsListWish');
+
+                    // Build a map: setName (lowercase) -> setCode
+                    var setMap = {};
+                    Array.from(datalist.options).forEach(function(opt) {
+                        setMap[opt.value.toLowerCase()] = opt.getAttribute('data-code');
+                    });
+
+                    function onSetInputChange() {
+                        var typed = displayInput.value.trim();
+                        var code  = setMap[typed.toLowerCase()];
+                        if (code) {
+                            // Valid set selected: update hidden field and enable card input
+                            codeInput.value  = code;
+                            cardInput.disabled = false;
+                            htmx.trigger(cardInput, 'loadCards');
+                        } else {
+                            // Not yet a valid set
+                            codeInput.value  = '';
+                            cardInput.disabled = true;
+                        }
+                    }
+
+                    displayInput.addEventListener('input', onSetInputChange);
+                    displayInput.addEventListener('change', onSetInputChange);
+                })();
+            </script>
         </div>
     </div>
 </body>

@@ -3,6 +3,8 @@ package com.example.mtg.collection.service;
 import com.example.mtg.collection.entity.MtgCardReference;
 import com.example.mtg.collection.entity.MtgSet;
 import com.example.mtg.collection.entity.SyncStatus;
+import com.example.mtg.collection.entity.Card;
+import com.example.mtg.collection.repository.CardRepository;
 import com.example.mtg.collection.repository.MtgCardReferenceRepository;
 import com.example.mtg.collection.repository.MtgSetRepository;
 import com.example.mtg.collection.repository.SyncStatusRepository;
@@ -34,6 +36,7 @@ public class ScryfallSyncService {
     private final MtgSetRepository setRepository;
     private final MtgCardReferenceRepository cardReferenceRepository;
     private final SyncStatusRepository syncStatusRepository;
+    private final CardRepository cardRepository;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
@@ -42,10 +45,12 @@ public class ScryfallSyncService {
 
     public ScryfallSyncService(MtgSetRepository setRepository,
                                MtgCardReferenceRepository cardReferenceRepository,
-                               SyncStatusRepository syncStatusRepository) {
+                               SyncStatusRepository syncStatusRepository,
+                               CardRepository cardRepository) {
         this.setRepository = setRepository;
         this.cardReferenceRepository = cardReferenceRepository;
         this.syncStatusRepository = syncStatusRepository;
+        this.cardRepository = cardRepository;
         this.restTemplate = new RestTemplate();
         this.objectMapper = new ObjectMapper();
     }
@@ -99,7 +104,7 @@ public class ScryfallSyncService {
 
                 while (parser.nextToken() != JsonToken.END_ARRAY) {
                     if (parser.currentToken() == JsonToken.START_OBJECT) {
-                        String id = null, name = null, set = null;
+                        String id = null, name = null, set = null, rarity = "Common";
 
                         while (parser.nextToken() != JsonToken.END_OBJECT) {
                             String fieldName = parser.getCurrentName();
@@ -111,13 +116,18 @@ public class ScryfallSyncService {
                                 name = parser.getValueAsString();
                             } else if ("set".equals(fieldName)) {
                                 set = parser.getValueAsString();
+                            } else if ("rarity".equals(fieldName)) {
+                                String r = parser.getValueAsString();
+                                if (r != null && r.length() > 0) {
+                                    rarity = r.substring(0, 1).toUpperCase() + r.substring(1).toLowerCase();
+                                }
                             } else {
                                 parser.skipChildren();
                             }
                         }
 
                         if (id != null && name != null && set != null) {
-                            batch.add(new MtgCardReference(name, id, set));
+                            batch.add(new MtgCardReference(name, id, set, rarity));
                             cardCount++;
 
                             if (batch.size() >= batchSize) {
@@ -135,7 +145,31 @@ public class ScryfallSyncService {
                 }
             }
 
-            // 4. Update Sync Status
+            // 4. Fix existing cards with "Common" rarity
+            log.info("Updating existing cards rarities from references...");
+            List<Card> allCards = cardRepository.findAll();
+            int fixedCount = 0;
+            for (Card c : allCards) {
+                if ("Common".equals(c.getRarity())) {
+                    String setCode = setRepository.findByCode(c.getSetName())
+                        .map(MtgSet::getCode)
+                        .or(() -> setRepository.findByNameIgnoreCase(c.getSetName()).map(MtgSet::getCode))
+                        .orElse(c.getSetName());
+
+                    cardReferenceRepository.findFirstByNameIgnoreCaseAndSetCodeIgnoreCase(c.getName(), setCode)
+                        .or(() -> cardReferenceRepository.findFirstByNameContainingIgnoreCaseAndSetCodeIgnoreCase(c.getName(), setCode))
+                        .ifPresent(ref -> {
+                            if (ref.getRarity() != null && !"Common".equals(ref.getRarity())) {
+                                c.setRarity(ref.getRarity());
+                                cardRepository.save(c);
+                            }
+                        });
+                    fixedCount++;
+                }
+            }
+            log.info("Updated {} cards from references.", fixedCount);
+
+            // 5. Update Sync Status
             log.info("Sync complete! Imported {} sets and {} cards.", setCount, cardCount);
             SyncStatus status = syncStatusRepository.findTopByOrderByIdDesc().orElse(new SyncStatus());
             status.setLastSyncDate(LocalDateTime.now());
