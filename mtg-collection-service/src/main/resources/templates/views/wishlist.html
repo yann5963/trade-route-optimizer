@@ -160,11 +160,11 @@
                             <span th:unless="${wishCard.isFoil}">-</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-medium" th:text="${wishCard.desiredQuantity}">1</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" th:text="${wishCard.maxPrice != null ? wishCard.maxPrice + ' €' : '-'}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" th:text="${wishCard.maxPrice != null ? #numbers.formatDecimal(wishCard.maxPrice, 1, 2) + ' €' : '-'}">-</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm relative group">
                             <span th:if="${wishCard.latestPriceHistory != null}" 
                                   class="text-indigo-400 font-medium cursor-help" 
-                                  th:text="${wishCard.latestPriceHistory.price + ' €'}">10.00 €</span>
+                                  th:text="${#numbers.formatDecimal(wishCard.latestPriceHistory.price, 1, 2) + ' €'}">10.00 €</span>
                             
                             <!-- Tooltip/Bulle -->
                             <div th:if="${wishCard.latestPriceHistory != null}"
@@ -172,7 +172,7 @@
                                 <div class="text-[10px] font-bold text-gray-500 uppercase mb-2 border-b border-slate-800 pb-1 tracking-wider">Derniers prix relevés</div>
                                 <div th:each="hist : ${wishCard.getRecentPriceHistory(4)}" class="flex justify-between items-center text-xs py-1">
                                     <span class="text-gray-400" th:text="${#temporals.format(hist.recordDate, 'dd/MM/yyyy')}"></span>
-                                    <span class="text-indigo-400 font-semibold" th:text="${hist.price + ' €'}"></span>
+                                    <span class="text-indigo-400 font-semibold" th:text="${#numbers.formatDecimal(hist.price, 1, 2) + ' €'}"></span>
                                 </div>
                                 <!-- Arrow -->
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-8 border-transparent border-t-slate-900"></div>

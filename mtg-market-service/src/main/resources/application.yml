@@ -1,8 +1,10 @@
 spring:
+  application:
+    name: mtg-market-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/mtg_db
-    username: yann
-    password: postgresql
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/mtg_db}
+    username: ${DATABASE_USER:yann}
+    password: ${DATABASE_PASSWORD:postgresql}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -17,7 +19,7 @@ server:
 
 cardmarket:
   api:
-    base-url: https://api.cardmarket.com
+    base-url: ${CARDMARKET_API_URL:https://api.cardmarket.com}
     app-token: ${CARDMARKET_APP_TOKEN:default_app_token}
     app-secret: ${CARDMARKET_APP_SECRET:default_app_secret}
     access-token: ${CARDMARKET_ACCESS_TOKEN:default_access_token}

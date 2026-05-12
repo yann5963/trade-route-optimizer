@@ -74,16 +74,16 @@
                          class="flex flex-wrap gap-4 text-xs font-medium text-gray-300">
                         <div class="bg-slate-700/50 px-3 py-1.5 rounded-md border border-slate-600 shadow-sm">
                             <span class="text-gray-400">Investissement total:</span>
-                            <span class="ml-1 text-white" th:text="${totalInvestment != null ? totalInvestment : '0.00'} + ' €'">0.00 €</span>
+                            <span class="ml-1 text-white" th:text="${totalInvestment != null ? #numbers.formatDecimal(totalInvestment, 1, 2) : '0.00'} + ' €'">0.00 €</span>
                         </div>
                         <div class="bg-slate-700/50 px-3 py-1.5 rounded-md border border-slate-600 shadow-sm">
                             <span class="text-gray-400">Total des ventes:</span>
-                            <span class="ml-1 text-white" th:text="${totalSales != null ? totalSales : '0.00'} + ' €'">0.00 €</span>
+                            <span class="ml-1 text-white" th:text="${totalSales != null ? #numbers.formatDecimal(totalSales, 1, 2) : '0.00'} + ' €'">0.00 €</span>
                         </div>
                         <div class="bg-slate-700/50 px-3 py-1.5 rounded-md border border-slate-600 shadow-sm flex items-center">
                             <span class="text-gray-400">Solde:</span>
                             <span class="ml-1" th:classappend="${balance != null and balance > 0 ? 'text-green-400' : (balance != null and balance < 0 ? 'text-red-400' : 'text-white')}" 
-                                  th:text="${balance != null ? (balance > 0 ? '+' : '') + balance : '0.00'} + ' €'">0.00 €</span>
+                                  th:text="${balance != null ? (balance > 0 ? '+' : '') + #numbers.formatDecimal(balance, 1, 2) : '0.00'} + ' €'">0.00 €</span>
                             <span class="ml-1.5 text-sm" th:if="${balance != null and balance > 0}">😀</span>
                             <span class="ml-1.5 text-sm" th:if="${balance != null and balance < 0}">😢</span>
                             <span class="ml-1.5 text-sm" th:if="${balance == null or balance == 0}">😐</span>
@@ -200,8 +200,8 @@
                             <span th:unless="${userCard.isFoil}">-</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-medium" th:text="${userCard.quantity}">1</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" th:text="${userCard.purchasePrice != null ? userCard.purchasePrice + ' €' : '-'}">-</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-semibold" th:classappend="${userCard.sold ? 'text-red-400' : ''}" th:text="${userCard.sellingPrice != null ? userCard.sellingPrice + ' €' : '-'}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" th:text="${userCard.purchasePrice != null ? #numbers.formatDecimal(userCard.purchasePrice, 1, 2) + ' €' : '-'}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-semibold" th:classappend="${userCard.sold ? 'text-red-400' : ''}" th:text="${userCard.sellingPrice != null ? #numbers.formatDecimal(userCard.sellingPrice, 1, 2) + ' €' : '-'}">-</td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
                             <button th:hx-get="'/ui/collection/edit/' + ${userCard.id}"
                                     hx-target="#modal-container"

@@ -1,8 +1,10 @@
 spring:
+  application:
+    name: mtg-collection-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/mtg_db
-    username: yann
-    password: postgresql
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/mtg_db}
+    username: ${DATABASE_USER:yann}
+    password: ${DATABASE_PASSWORD:postgresql}
     driver-class-name: org.postgresql.Driver
   messages:
     basename: messages/messages
@@ -21,6 +23,9 @@ server:
   port: 8081
 
 app:
+  market:
+    api:
+      url: ${MARKET_SERVICE_URL:http://localhost:8082}
   pagination:
     max-record-collection: 6
     max-record-wishlist: 6

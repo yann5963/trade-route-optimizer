@@ -51,8 +51,8 @@
 
                 <div class="bg-slate-900/50 px-5 py-3 border-t border-slate-700 flex justify-between items-center">
                     <div>
-                        <div class="text-xs text-gray-500 line-through" th:text="${deal.trendPrice} + ' €'">10.00 €</div>
-                        <div class="text-lg font-bold text-white leading-none mt-0.5" th:text="${deal.price} + ' €'">8.50 €</div>
+                        <div class="text-xs text-gray-500 line-through" th:text="${#numbers.formatDecimal(deal.trendPrice, 1, 2)} + ' €'">10.00 €</div>
+                        <div class="text-lg font-bold text-white leading-none mt-0.5" th:text="${#numbers.formatDecimal(deal.price, 1, 2)} + ' €'">8.50 €</div>
                     </div>
 
                     <div class="flex gap-2">

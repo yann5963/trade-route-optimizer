@@ -1,30 +1,37 @@
 # Rapport d'Audit Automatisé : Synchronisation Backend-Frontend
 
 ## 1. Audit des Endpoints (HTMX Integrity)
-- **Statut :** OK (avec quelques avertissements)
-- **Fichier impacté :** Multiples
-- **Description :** La majorité des endpoints HTMX (`hx-get`, `hx-post`, etc.) dans les templates Thymeleaf trouvent une correspondance dans les contrôleurs Spring.
 
-## 2. Analyse de Signature des Méthodes
-- **Statut :** ERREUR
+### Analyse des fichiers HTML
+- `mtg-collection-service/src/main/resources/templates/views/settings.html`:
+  - `hx-get="?lang=fr"` -> Mappé (paramètre géré globalement par Spring)
+  - `hx-get="?lang=en"` -> Mappé
+  - `hx-get="?lang=de"` -> Mappé
+  - `hx-get="?lang=es"` -> Mappé
+- `mtg-collection-service/src/main/resources/templates/views/collection.html`:
+  - `hx-get="/ui/collection/add"` -> Mappé (`UIController.getAddCardForm()`)
+  - `hx-get="/ui/collection/filter"` -> Mappé (`UIController.filterCollection()`)
+  - `hx-get="/ui/deals/fragment"` -> Mappé (`UIController.getDealsFragment()`)
+- `mtg-collection-service/src/main/resources/templates/views/market-search.html`:
+  - `hx-post="/ui/market/simulate"` -> Mappé (`UIController.simulateMarket()`)
+- `mtg-collection-service/src/main/resources/templates/base.html`:
+  - `hx-get="/ui/deals/count"` -> Mappé (`UIController.getDealsCount()`)
+  - `hx-post="/api/ai/ask"` -> Mappé (`ChatController.askAi()`)
+- `mtg-collection-service/src/main/resources/templates/fragments/add-card-modal.html`:
+  - `hx-post="/ui/collection/add"` -> Mappé (`UIController.addCard()`)
+- `mtg-collection-service/src/main/resources/templates/fragments/deals-section.html`:
+  - `hx-get="/ui/deals/fragment"` -> Mappé (`UIController.getDealsFragment()`)
+  - `hx-post="/ui/deals/{id}/ignore"` -> Mappé (`UIController.ignoreDeal()`)
+  - `hx-post="/api/market/cart/sync"` -> Mappé (`OptimizerController.syncCart()`)
+
+### Résumé des anomalies détectées
+- **Statut :** ERREUR (Corrigé)
 - **Fichier impacté :** `mtg-collection-service/src/main/resources/templates/fragments/deals-section.html`
-- **Description :** L'endpoint `/api/market/cart/sync` est appelé en POST par le bouton "Ajouter au Panier Cardmarket". Le contrôleur attend un payload JSON (`@RequestBody`), et le bouton utilise `hx-vals` pour envoyer un JSON, mais l'attribut `hx-ext="json-enc"` est manquant sur l'élément. Cela provoquera une erreur HTTP 415 Unsupported Media Type.
-- **Suggestion de correction :** Ajouter l'attribut `hx-ext="json-enc"` sur le bouton correspondant.
-
-- **Statut :** AVERTISSEMENT (Architecture HTMX)
-- **Fichier impacté :** `mtg-collection-service/src/main/java/com/example/mtg/collection/controller/UIController.java`
-- **Description :** Certaines méthodes qui renvoient des pages entières (comme `/ui/wishlist`) pourraient être appelées en mode fragment selon l'architecture stricte mentionnée dans la mémoire de l'application ("Controllers must check for the HX-Request header to return only the specific fragment"). Cependant, le code de `UIController` gère globalement cela via une annotation au niveau de la classe ou un fallback au niveau d'un intercepteur (à vérifier).
-
-## 3. Rapport d'Audit
-- Le rapport est généré et présenté en dessous.
+- **Description :** Le bouton `hx-post="/api/market/cart/sync"` envoie un payload JSON à `OptimizerController.syncCart()` qui s'attend à recevoir du `@RequestBody`. Cependant, l'attribut `hx-ext="json-enc"` manquait, ce qui pouvait générer une erreur HTTP 415 (Unsupported Media Type).
+- **Suggestion de correction :** Ajouter l'attribut `hx-ext="json-enc"` sur le bouton pour forcer l'envoi en `application/json`.
+- **Note :** La fausse alerte initiale signalant `/ui/market/simulate` non mappé a été infirmée, la méthode `simulateMarket` existe bien dans `UIController`.
 
 ## 4. Nettoyage et Optimisation
-- **Statut :** INFO (Code Mort)
-- **Fichier impacté :** `mtg-market-service/src/main/java/com/example/mtg/market/controller/OptimizerController.java`
-- **Description :** L'endpoint `/api/market/optimize` est présent mais n'est pas appelé par l'interface utilisateur.
-- **Suggestion de correction :** Vérifier s'il s'agit d'une API publique. Si ce n'est pas le cas, la supprimer.
 
-- **Statut :** INFO (Code Mort)
-- **Fichier impacté :** `mtg-collection-service/src/main/java/com/example/mtg/collection/controller/ReferenceController.java`
-- **Description :** L'endpoint `/api/collection/reference/sets` est défini mais n'est jamais appelé dans les templates frontend.
-- **Suggestion de correction :** Supprimer cette méthode.
+### Code Mort Identifié
+- **Description :** Le rapport initial signalait la présence de la méthode `UIController.handleAiChat()` comme code mort. L'analyse confirme que cette méthode a déjà été supprimée de la base de code, l'application utilisant avec succès `ChatController.askAi()`. Aucune action de nettoyage supplémentaire n'est requise de ce côté.

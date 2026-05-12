@@ -6,7 +6,12 @@ spring:
     name: mtg-ai-orchestrator
   ai:
     ollama:
-      base-url: http://localhost:11434
+      base-url: ${OLLAMA_URL:http://localhost:11434}
       chat:
         options:
-          model: llama3.2:3b
+          model: ${OLLAMA_MODEL:llama3.2:3b}
+
+app:
+  market:
+    api:
+      url: ${MARKET_SERVICE_URL:http://localhost:8082}
