@@ -13,7 +13,7 @@
   - `hx-get="/ui/collection/filter"` -> Mappé (`UIController.filterCollection()`)
   - `hx-get="/ui/deals/fragment"` -> Mappé (`UIController.getDealsFragment()`)
 - `mtg-collection-service/src/main/resources/templates/views/market-search.html`:
-  - `hx-post="/ui/market/simulate"` -> **NON MAPPÉ**
+  - `hx-post="/ui/market/simulate"` -> Mappé (`UIController.simulateMarket()`)
 - `mtg-collection-service/src/main/resources/templates/base.html`:
   - `hx-get="/ui/deals/count"` -> Mappé (`UIController.getDealsCount()`)
   - `hx-post="/api/ai/ask"` -> Mappé (`ChatController.askAi()`)
@@ -25,15 +25,13 @@
   - `hx-post="/api/market/cart/sync"` -> Mappé (`OptimizerController.syncCart()`)
 
 ### Résumé des anomalies détectées
-- **Statut :** ERREUR
-- **Fichier impacté :** `mtg-collection-service/src/main/resources/templates/views/market-search.html`
-- **Description :** L'endpoint `/ui/market/simulate` est appelé en POST par le bouton "Simuler l'achat (Ajout BD)" (`hx-post="/ui/market/simulate"`), mais le contrôleur `UIController` (ni aucun autre) ne possède de méthode correspondante.
-- **Suggestion de correction :** Ajouter une méthode `@PostMapping("/market/simulate")` dans `UIController`.
+- **Statut :** ERREUR (Corrigé)
+- **Fichier impacté :** `mtg-collection-service/src/main/resources/templates/fragments/deals-section.html`
+- **Description :** Le bouton `hx-post="/api/market/cart/sync"` envoie un payload JSON à `OptimizerController.syncCart()` qui s'attend à recevoir du `@RequestBody`. Cependant, l'attribut `hx-ext="json-enc"` manquait, ce qui pouvait générer une erreur HTTP 415 (Unsupported Media Type).
+- **Suggestion de correction :** Ajouter l'attribut `hx-ext="json-enc"` sur le bouton pour forcer l'envoi en `application/json`.
+- **Note :** La fausse alerte initiale signalant `/ui/market/simulate` non mappé a été infirmée, la méthode `simulateMarket` existe bien dans `UIController`.
 
 ## 4. Nettoyage et Optimisation
 
 ### Code Mort Identifié
-- **Méthode :** `UIController.handleAiChat()`
-- **Endpoint associé :** `@PostMapping("/ai/chat")` (Ancien endpoint : `/ui/ai/chat`)
-- **Description :** Cette méthode n'est plus appelée nulle part dans le frontend. L'interface utilise désormais `hx-post="/api/ai/ask"` dans `base.html` qui est géré par `ChatController.askAi()`.
-- **Suggestion :** Supprimer la méthode `handleAiChat()` dans `UIController.java`.
+- **Description :** Le rapport initial signalait la présence de la méthode `UIController.handleAiChat()` comme code mort. L'analyse confirme que cette méthode a déjà été supprimée de la base de code, l'application utilisant avec succès `ChatController.askAi()`. Aucune action de nettoyage supplémentaire n'est requise de ce côté.
